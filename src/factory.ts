@@ -1,0 +1,70 @@
+import * as ECS from '../libs/pixi-ecs';
+import * as PIXI from 'pixi.js';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, BULLET_SPEED, BULLET_OFFSET } from './constants';
+import { BulletState, PlayerState } from './state-structs';
+import { PlayerController } from './player-controller';
+import { BulletController } from './bullet-controller';
+
+export class Factory {
+  
+  private static instance: Factory;
+
+  private bulletCounter = 0;
+
+  public static getInstance(): Factory {
+    if (!Factory.instance) {
+      Factory.instance = new Factory();
+    }
+    return Factory.instance;
+  }
+
+  loadScene(scene: ECS.Scene) {
+    scene.addGlobalComponentAndRun(new ECS.KeyInputComponent());
+
+    const backgroundTexture = PIXI.Texture.from('background');
+    const background = new ECS.TilingSprite('background', backgroundTexture, SCENE_WIDTH, SCENE_HEIGHT);
+		
+    const playerTexture = PIXI.Texture.from('player');
+    const player = new ECS.Sprite('player', playerTexture);
+    player.anchor.set(0.5, 0.5);
+    player.addTag(Tags.PLAYER);
+
+    const initPosition: Position = {
+      x: SCENE_WIDTH/2,
+      y: SCENE_HEIGHT/2,
+      angle: 0
+    }
+
+    player.position.x = initPosition.x;
+    player.position.y = initPosition.y;
+
+    scene.stage.addChild(background);
+    scene.stage.addChild(player);
+    scene.stage.addComponent(new PlayerController(new PlayerState(scene, initPosition)));
+  }
+
+  spawnBullet(scene: ECS.Scene) {
+    const playerSprite = scene.findObjectByTag(Tags.PLAYER);
+    
+    const bulletTexture = PIXI.Texture.from('bullet');
+    const bullet = new ECS.Sprite('bullet', bulletTexture);
+    
+    const initPosition: Position = {
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI/2) * BULLET_OFFSET,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI/2) * BULLET_OFFSET,
+      angle: playerSprite.rotation
+    }
+
+    bullet.anchor.set(0.5, 0.5);
+    bullet.position.set(initPosition.x, initPosition.y)
+    bullet.rotation = initPosition.angle;
+
+    this.bulletCounter++;
+    let tag = Tags.BULLET + this.bulletCounter;
+    bullet.addTag(tag);
+    
+    scene.stage.addChild(bullet);
+    scene.stage.addComponent(new BulletController(new BulletState(scene, initPosition, tag)));
+  }
+
+}
