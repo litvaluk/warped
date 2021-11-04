@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { BULLET_SPEED, Direction, Messages, MOVE_STEP, Position } from './constants';
+import { BULLET_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position } from './constants';
 
 class ObservableState {
 	
@@ -31,16 +31,16 @@ export class PlayerState extends ObservableState {
 	move(direction: Direction) {
 		switch (direction) {
 			case Direction.LEFT:
-				this._position.x -= MOVE_STEP;
+				this._position.x -= PLAYER_MOVE_STEP;
 				break;
 			case Direction.UP:
-				this._position.y -= MOVE_STEP;
+				this._position.y -= PLAYER_MOVE_STEP;
 				break;
 			case Direction.RIGHT:
-				this._position.x += MOVE_STEP;
+				this._position.x += PLAYER_MOVE_STEP;
 				break;
 			case Direction.DOWN:
-				this._position.y += MOVE_STEP;
+				this._position.y += PLAYER_MOVE_STEP;
 				break;
 			default:
 				break;

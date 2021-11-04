@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, BULLET_SPEED, BULLET_OFFSET } from './constants';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, BULLET_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y } from './constants';
 import { BulletState, PlayerState } from './state-structs';
 import { PlayerController } from './player-controller';
 import { BulletController } from './bullet-controller';
@@ -30,8 +30,8 @@ export class Factory {
     player.addTag(Tags.PLAYER);
 
     const initPosition: Position = {
-      x: SCENE_WIDTH/2,
-      y: SCENE_HEIGHT/2,
+      x: PLAYER_STARTING_X,
+      y: PLAYER_STARTING_Y,
       angle: 0
     }
 
