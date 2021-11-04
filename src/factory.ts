@@ -20,6 +20,12 @@ export class Factory {
 
   loadScene(scene: ECS.Scene) {
     scene.addGlobalComponentAndRun(new ECS.KeyInputComponent());
+    scene.addGlobalComponentAndRun(new ECS.PointerInputComponent({
+      handleClick: false,
+      handlePointerDown: true,
+      handlePointerOver: true,
+      handlePointerRelease: true
+    }));
 
     const backgroundTexture = PIXI.Texture.from('background');
     const background = new ECS.TilingSprite('background', backgroundTexture, SCENE_WIDTH, SCENE_HEIGHT);

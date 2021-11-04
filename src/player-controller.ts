@@ -13,6 +13,7 @@ export class PlayerController extends ECS.Component<PlayerState> {
 		this.keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.scene.stage.interactive = true;
     this.scene.stage.on('pointermove', this.updateAngle);
+    this.subscribe(ECS.PointerMessages.POINTER_DOWN);
 	}
   
   onUpdate() {
@@ -36,6 +37,12 @@ export class PlayerController extends ECS.Component<PlayerState> {
       this.scene.addGlobalComponentAndRun(Actions.shoot(this.scene, this.props));
       console.log('d');
 		}
+  }
+
+  onMessage(msg: ECS.Message) {
+    if (msg.action === ECS.PointerMessages.POINTER_DOWN) {
+      this.scene.stage.addComponentAndRun(Actions.shoot(this.scene, this.props));
+    }
   }
 
   updateAngle(e: { data: { global: any; }; }) {
