@@ -6,34 +6,33 @@ import { PlayerState } from './state-structs';
 
 export class PlayerController extends ECS.Component<PlayerState> {
   
-  private keyInputCmp: ECS.KeyInputComponent;
+  private _keyInputCmp: ECS.KeyInputComponent;
 
   onInit() {
 		super.onInit();
-		this.keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
-    this.scene.stage.interactive = true;
-    this.scene.stage.on('pointermove', this.updateAngle);
+		this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
+    this.subscribe(ECS.PointerMessages.POINTER_OVER);
 	}
   
   onUpdate() {
-    if (this.keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
+    if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
 			// this.keyInputCmp.handleKey(ECS.Keys.KEY_A);
       this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.LEFT));
-		} else if (this.keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
 			// this.keyInputCmp.handleKey(ECS.Keys.KEY_S);
       this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.DOWN));
       console.log('s');
-		} else if (this.keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
 			// this.keyInputCmp.handleKey(ECS.Keys.KEY_W);
       this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.UP));
       console.log('w');
-		} else if (this.keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
 			// this.keyInputCmp.handleKey(ECS.Keys.KEY_D);
       this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.RIGHT));
       console.log('d');
-		} else if (this.keyInputCmp.isKeyPressed(ECS.Keys.KEY_SPACE)) {
-			this.keyInputCmp.handleKey(ECS.Keys.KEY_SPACE);
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_SPACE)) {
+			this._keyInputCmp.handleKey(ECS.Keys.KEY_SPACE);
       this.scene.addGlobalComponentAndRun(Actions.shoot(this.scene, this.props));
       console.log('d');
 		}
@@ -42,15 +41,11 @@ export class PlayerController extends ECS.Component<PlayerState> {
   onMessage(msg: ECS.Message) {
     if (msg.action === ECS.PointerMessages.POINTER_DOWN) {
       this.scene.stage.addComponentAndRun(Actions.shoot(this.scene, this.props));
+    } else if (msg.action === ECS.PointerMessages.POINTER_OVER) {
+      let pos = msg.data.mousePos;
+      let angle = getAngleRad(this.props.position.x, this.props.position.y, pos.posX, pos.posY);
+      this.scene.addGlobalComponentAndRun(Actions.updatePlayerAngle(this.scene, this.props, angle));
     }
-  }
-
-  updateAngle(e: { data: { global: any; }; }) {
-    let pos = e.data.global;
-    const playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
-    let angle = getAngleRad(playerSprite.x, playerSprite.y, pos.x, pos.y);
-    this.scene.addGlobalComponentAndRun(Actions.updatePlayerAngle(this.scene, this.props, angle));
-    console.log('angle = ' + angle);
   }
   
 }

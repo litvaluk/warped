@@ -18,7 +18,7 @@ export class Actions {
     return new ECS.ChainComponent()
         .call(() => {
           const playerSprite = scene.findObjectByTag(Tags.PLAYER);
-          // playerState.updateAngle(angle);
+          playerState.updateAngle(angle);
           playerSprite.rotation = angle;
         });
   }

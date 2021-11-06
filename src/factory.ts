@@ -7,15 +7,15 @@ import { BulletController } from './bullet-controller';
 
 export class Factory {
   
-  private static instance: Factory;
+  private static _instance: Factory;
 
-  private bulletCounter = 0;
+  private _bulletCounter = 0;
 
   public static getInstance(): Factory {
-    if (!Factory.instance) {
-      Factory.instance = new Factory();
+    if (!Factory._instance) {
+      Factory._instance = new Factory();
     }
-    return Factory.instance;
+    return Factory._instance;
   }
 
   loadScene(scene: ECS.Scene) {
@@ -65,8 +65,8 @@ export class Factory {
     bullet.position.set(initPosition.x, initPosition.y)
     bullet.rotation = initPosition.angle;
 
-    this.bulletCounter++;
-    let tag = Tags.BULLET + this.bulletCounter;
+    this._bulletCounter++;
+    let tag = Tags.BULLET + this._bulletCounter;
     bullet.addTag(tag);
     
     scene.stage.addChild(bullet);
