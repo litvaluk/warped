@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { BULLET_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position } from './constants';
+import { BULLET_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH } from './constants';
 
 class ObservableState {
 	
@@ -75,6 +75,10 @@ export class BulletState extends ObservableState {
 	updatePosition() {
 		this.position.x += Math.cos(this.position.angle - Math.PI/2) * BULLET_SPEED;
     this.position.y += Math.sin(this.position.angle - Math.PI/2) * BULLET_SPEED;
+	}
+
+	isOutOfScreen(): boolean {
+		return this.position.x > SCENE_WIDTH || this.position.x < 0 || this.position.y > SCENE_WIDTH || this.position.y < 0;
 	}
 
 }

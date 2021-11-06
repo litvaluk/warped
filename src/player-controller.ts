@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Actions } from './actions';
 import { Direction, Tags } from './constants';
+import { Factory } from './factory';
 import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
 
@@ -16,36 +16,44 @@ export class PlayerController extends ECS.Component<PlayerState> {
 	}
   
   onUpdate() {
-    if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
-			// this.keyInputCmp.handleKey(ECS.Keys.KEY_A);
-      this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.LEFT));
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
-			// this.keyInputCmp.handleKey(ECS.Keys.KEY_S);
-      this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.DOWN));
-      console.log('s');
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
-			// this.keyInputCmp.handleKey(ECS.Keys.KEY_W);
-      this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.UP));
-      console.log('w');
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
-			// this.keyInputCmp.handleKey(ECS.Keys.KEY_D);
-      this.scene.addGlobalComponentAndRun(Actions.move(this.scene, this.props, Direction.RIGHT));
-      console.log('d');
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_SPACE)) {
-			this._keyInputCmp.handleKey(ECS.Keys.KEY_SPACE);
-      this.scene.addGlobalComponentAndRun(Actions.shoot(this.scene, this.props));
-      console.log('d');
-		}
+    this._handleKeyboardInput();
   }
 
   onMessage(msg: ECS.Message) {
     if (msg.action === ECS.PointerMessages.POINTER_DOWN) {
-      this.scene.stage.addComponentAndRun(Actions.shoot(this.scene, this.props));
+      this._shoot();
     } else if (msg.action === ECS.PointerMessages.POINTER_OVER) {
       let pos = msg.data.mousePos;
       let angle = getAngleRad(this.props.position.x, this.props.position.y, pos.posX, pos.posY);
-      this.scene.addGlobalComponentAndRun(Actions.updatePlayerAngle(this.scene, this.props, angle));
+      this._updateAngle(angle);
     }
+  }
+
+  private _handleKeyboardInput() {
+    if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
+      this._move(Direction.LEFT);
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
+      this._move(Direction.DOWN);
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
+      this._move(Direction.UP);
+		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
+      this._move(Direction.RIGHT);
+		}
+  }
+
+  private _updateAngle(angle: number) {
+    this.props.updateAngle(angle);
+    this.scene.findObjectByTag(Tags.PLAYER).rotation = angle;
+  }
+  
+  private _move(direction: Direction) {
+    const playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
+    this.props.move(direction);
+    playerSprite.position.set(this.props.position.x, this.props.position.y);
+  }
+
+  private _shoot() {
+    Factory.getInstance().spawnBullet(this.scene);
   }
   
 }

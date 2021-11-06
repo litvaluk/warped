@@ -65,8 +65,7 @@ export class Factory {
     bullet.position.set(initPosition.x, initPosition.y)
     bullet.rotation = initPosition.angle;
 
-    this._bulletCounter++;
-    let tag = Tags.BULLET + this._bulletCounter;
+    let tag = Tags.BULLET + ++this._bulletCounter;
     bullet.addTag(tag);
     
     scene.stage.addChild(bullet);
