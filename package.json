@@ -1,11 +1,11 @@
 {
-  "name": "aphgames-template",
-  "author": "put your name here",
-  "version": "0.0.2",
+  "name": "warped",
+  "author": "Lukáš Litvan",
+  "version": "0.0.3",
   "license": "MIT",
   "scripts": {
-    "dev": "node scripts/prebuild-project && parcel view/index.html --out-dir build",
-    "deploy": "node scripts/prebuild-project && parcel build view/index.html --out-dir build --public-url PUBLICURL --no-cache --no-source-maps && node scripts/fix-links.js",
+    "dev": "node scripts/prebuild-project && parcel view/index.html --dist-dir build",
+    "deploy": "node scripts/prebuild-project && parcel build view/index.html --dist-dir build --public-url PUBLICURL --no-cache --no-source-maps && node scripts/fix-links.js",
     "lint": "eslint . --ext ts",
     "compile-test": "tsc --project tsconfig.json --noemit"
   },
@@ -28,7 +28,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-standard": "^5.0.0",
-    "parcel": "1.12.3",
+    "parcel": "^2.0.1",
     "typescript": "^4.3.5"
   }
 }
