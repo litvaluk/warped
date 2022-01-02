@@ -1,0 +1,7 @@
+# Production
+/build
+
+# Generated files
+.cache-loader
+.cache/
+.parcel-cache/
