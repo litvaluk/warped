@@ -4,21 +4,21 @@ import { EnemyState } from './state-structs';
 export class Enemy extends ECS.Component<EnemyState> {
 
   onUpdate() {
-    this.checkLaserCollision();
+    this._checkLaserCollision();
   }
 
-  private checkLaserCollision() {
+  private _checkLaserCollision() {
     let lasers = this.scene.findObjectsByTag('laser');
     for (let i = 0; i < lasers.length; i++) {
-      if (this.collidesWith(lasers[i])) {
-        this.removeLaserSprite(lasers[i].name);
+      if (this._collidesWith(lasers[i])) {
+        this._removeLaserSprite(lasers[i].name);
         this.finish();
         return;
       }
     }
   }
 
-  private collidesWith(other: ECS.Container): boolean {
+  private _collidesWith(other: ECS.Container): boolean {
     let ownBounds = this.scene.findObjectByTag(this.props.tag).getBounds();
     let otherBounds = other.getBounds();
     return ownBounds.x + ownBounds.width > otherBounds.x &&
@@ -27,7 +27,7 @@ export class Enemy extends ECS.Component<EnemyState> {
       ownBounds.y < otherBounds.y + otherBounds.height;
   }
 
-  private removeLaserSprite(spriteName: string) {
+  private _removeLaserSprite(spriteName: string) {
     let laserSprite = this.scene.findObjectByName(spriteName);
     if (laserSprite) {
       laserSprite.parent.removeChild(laserSprite);
