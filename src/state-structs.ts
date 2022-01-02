@@ -1,5 +1,6 @@
+import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
-import { LASER_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH } from './constants';
+import { LASER_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant } from './constants';
 
 class ObservableState {
 
@@ -15,18 +16,30 @@ class ObservableState {
 
 }
 
-export class PlayerState extends ObservableState {
+class GameObjectState extends ObservableState {
 
-	private _position: Position;
+	protected _position: Position;
+	protected _tag?: string;
 
-	constructor(scene: ECS.Scene, initPosition: Position) {
+	constructor(scene: ECS.Scene, initPosition: Position, tag?: string) {
 		super(scene);
 		this._position = initPosition;
+		if (tag) {
+			this._tag = tag
+		};
 	}
 
 	get position() {
 		return this._position;
 	}
+
+	get tag() {
+		return this._tag;
+	}
+
+}
+
+export class PlayerState extends GameObjectState {
 
 	move(direction: Direction) {
 		switch (direction) {
@@ -53,32 +66,90 @@ export class PlayerState extends ObservableState {
 
 }
 
-export class LaserState extends ObservableState {
+export class LaserState extends GameObjectState {
 
-	private _position: Position;
-	private _tag: string;
+	private _spriteName: string;
 
-	constructor(scene: ECS.Scene, initPosition: Position, tag: string) {
-		super(scene);
-		this._position = initPosition;
-		this._tag = tag;
+	constructor(scene: ECS.Scene, initPosition: Position, tag: string, spriteName: string) {
+		super(scene, initPosition, tag);
+		this._spriteName = spriteName;
 	}
 
-	get position() {
-		return this._position;
+	get spriteName() {
+		return this._spriteName;
 	}
 
-	get tag() {
-		return this._tag;
-	}
-
-	updatePosition() {
+	updatePosition(): void {
 		this.position.x += Math.cos(this.position.angle - Math.PI / 2) * LASER_SPEED;
 		this.position.y += Math.sin(this.position.angle - Math.PI / 2) * LASER_SPEED;
 	}
 
 	isOutOfScreen(): boolean {
 		return this.position.x > SCENE_WIDTH || this.position.x < 0 || this.position.y > SCENE_WIDTH || this.position.y < 0;
+	}
+
+}
+
+export class EnemyState extends GameObjectState {
+
+	private _color: EnemyColor;
+	private _variant: EnemyVariant;
+	private _spriteName: string;
+
+	constructor(scene: ECS.Scene, initPosition: Position, tag: string, color: EnemyColor, variant: EnemyVariant, spriteName: string) {
+		super(scene, initPosition, tag);
+		this._color = color;
+		this._variant = variant;
+		this._spriteName = spriteName;
+	}
+
+	get color() {
+		return this._color;
+	}
+
+	get variant() {
+		return this._variant;
+	}
+
+	get spriteName(): string {
+		return this._spriteName;
+	}
+
+}
+
+export class EnemySpawnerState {
+
+	private _random = new Random(Date.now());
+	private _intensity: number;
+	private _lastSpawnTime: Date;
+	private _nextSpawnTime: Date;
+
+	get random(): Random {
+		return this._random;
+	}
+
+	get intensity(): number {
+		return this._intensity;
+	}
+
+	get lastSpawnTime(): Date {
+		return this._lastSpawnTime;
+	}
+
+	get nextSpawnTime(): Date {
+		return this._nextSpawnTime;
+	}
+
+	set intensity(intensity: number) {
+		this._intensity = intensity;
+	}
+
+	set lastSpawnTime(lastSpawnTime: Date) {
+		this._lastSpawnTime = lastSpawnTime;
+	}
+
+	set nextSpawnTime(nextSpawnTime: Date) {
+		this._nextSpawnTime = nextSpawnTime;
 	}
 
 }

@@ -1,10 +1,10 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, Tags } from './constants';
+import { Direction, LaserColor, Tags } from './constants';
 import { Factory } from './factory';
 import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
 
-export class PlayerController extends ECS.Component<PlayerState> {
+export class Player extends ECS.Component<PlayerState> {
 
   private _keyInputCmp: ECS.KeyInputComponent;
 
@@ -53,7 +53,7 @@ export class PlayerController extends ECS.Component<PlayerState> {
   }
 
   private _shoot() {
-    Factory.getInstance().spawnLaser(this.scene);
+    Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE);
   }
 
 }
