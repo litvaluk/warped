@@ -1,15 +1,15 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, BULLET_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y } from './constants';
-import { BulletState, PlayerState } from './state-structs';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y } from './constants';
+import { LaserState, PlayerState } from './state-structs';
 import { PlayerController } from './player-controller';
-import { BulletController } from './bullet-controller';
+import { LaserController } from './laser-controller';
 
 export class Factory {
 
   private static _instance: Factory;
 
-  private _bulletCounter = 0;
+  private _laserCounter = 0;
 
   public static getInstance(): Factory {
     if (!Factory._instance) {
@@ -49,29 +49,33 @@ export class Factory {
     scene.stage.addComponent(new PlayerController(new PlayerState(scene, initPosition)));
   }
 
-  spawnBullet(scene: ECS.Scene) {
+  spawnLaser(scene: ECS.Scene) {
     const playerSprite = scene.findObjectByTag(Tags.PLAYER);
 
-    const bulletTexture = PIXI.Texture.from('bullet');
-    const bullet = new ECS.Sprite('bullet', bulletTexture);
+    const laserTexture = PIXI.Texture.from('laser');
+    const laser = new ECS.Sprite('laser', laserTexture);
 
     const initPosition: Position = {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * BULLET_OFFSET,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * BULLET_OFFSET,
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * LASER_OFFSET,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * LASER_OFFSET,
       angle: playerSprite.rotation
     }
 
-    bullet.anchor.set(0.5, 0.5);
-    bullet.position.set(initPosition.x, initPosition.y)
-    bullet.rotation = initPosition.angle;
-    bullet.scale.x = 0.3
-    bullet.scale.y = 0.3
+    laser.anchor.set(0.5, 0.5);
+    laser.position.set(initPosition.x, initPosition.y)
+    laser.rotation = initPosition.angle;
+    laser.scale.x = 0.3
+    laser.scale.y = 0.3
 
-    let tag = Tags.BULLET + ++this._bulletCounter;
-    bullet.addTag(tag);
+    let tag = Tags.LASER + ++this._laserCounter;
+    laser.addTag(tag);
 
-    scene.stage.addChild(bullet);
-    scene.stage.addComponent(new BulletController(new BulletState(scene, initPosition, tag)));
+    scene.stage.addChild(laser);
+    scene.stage.addComponent(new LaserController(new LaserState(scene, initPosition, tag)));
+  }
+
+  spawnEnemy(scene: ECS.Scene) {
+
   }
 
 }

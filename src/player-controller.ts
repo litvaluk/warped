@@ -5,16 +5,16 @@ import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
 
 export class PlayerController extends ECS.Component<PlayerState> {
-  
+
   private _keyInputCmp: ECS.KeyInputComponent;
 
   onInit() {
-		super.onInit();
-		this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
+    super.onInit();
+    this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
     this.subscribe(ECS.PointerMessages.POINTER_OVER);
-	}
-  
+  }
+
   onUpdate() {
     this._handleKeyboardInput();
   }
@@ -32,20 +32,20 @@ export class PlayerController extends ECS.Component<PlayerState> {
   private _handleKeyboardInput() {
     if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
       this._move(Direction.LEFT);
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
+    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
       this._move(Direction.DOWN);
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
+    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
       this._move(Direction.UP);
-		} else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
+    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
       this._move(Direction.RIGHT);
-		}
+    }
   }
 
   private _updateAngle(angle: number) {
     this.props.updateAngle(angle);
     this.scene.findObjectByTag(Tags.PLAYER).rotation = angle;
   }
-  
+
   private _move(direction: Direction) {
     const playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
     this.props.move(direction);
@@ -53,7 +53,7 @@ export class PlayerController extends ECS.Component<PlayerState> {
   }
 
   private _shoot() {
-    Factory.getInstance().spawnBullet(this.scene);
+    Factory.getInstance().spawnLaser(this.scene);
   }
-  
+
 }

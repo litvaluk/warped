@@ -8,7 +8,7 @@ export class GameLoader {
       .reset()
       .add('player', './assets/spaceship/player.png')
       .add('background', './assets/background/stars1.png')
-      .add('bullet', './assets/laser/blue.png')
+      .add('laser', './assets/laser/blue.png')
       .load(() => this.onAssetsLoaded(engine));
   }
 

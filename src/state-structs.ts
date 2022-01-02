@@ -1,8 +1,8 @@
 import * as ECS from '../libs/pixi-ecs';
-import { BULLET_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH } from './constants';
+import { LASER_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH } from './constants';
 
 class ObservableState {
-	
+
 	protected scene: ECS.Scene;
 
 	constructor(scene: ECS.Scene) {
@@ -16,15 +16,15 @@ class ObservableState {
 }
 
 export class PlayerState extends ObservableState {
-  
+
 	private _position: Position;
 
-  constructor(scene: ECS.Scene, initPosition: Position) {
+	constructor(scene: ECS.Scene, initPosition: Position) {
 		super(scene);
 		this._position = initPosition;
 	}
 
-  get position() {
+	get position() {
 		return this._position;
 	}
 
@@ -53,18 +53,18 @@ export class PlayerState extends ObservableState {
 
 }
 
-export class BulletState extends ObservableState {		
-	
+export class LaserState extends ObservableState {
+
 	private _position: Position;
 	private _tag: string;
 
-  constructor(scene: ECS.Scene, initPosition: Position, tag: string) {
+	constructor(scene: ECS.Scene, initPosition: Position, tag: string) {
 		super(scene);
 		this._position = initPosition;
 		this._tag = tag;
 	}
 
-  get position() {
+	get position() {
 		return this._position;
 	}
 
@@ -73,8 +73,8 @@ export class BulletState extends ObservableState {
 	}
 
 	updatePosition() {
-		this.position.x += Math.cos(this.position.angle - Math.PI/2) * BULLET_SPEED;
-    this.position.y += Math.sin(this.position.angle - Math.PI/2) * BULLET_SPEED;
+		this.position.x += Math.cos(this.position.angle - Math.PI / 2) * LASER_SPEED;
+		this.position.y += Math.sin(this.position.angle - Math.PI / 2) * LASER_SPEED;
 	}
 
 	isOutOfScreen(): boolean {

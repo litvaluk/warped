@@ -4,7 +4,7 @@ import { SCENE_HEIGHT, SCENE_RESOLUTION, SCENE_WIDTH } from './constants';
 import { GameLoader } from './game-loader';
 
 class Warped {
-	
+
 	engine: ECS.Engine;
 
 	constructor() {
@@ -30,7 +30,7 @@ class Warped {
 
 		new GameLoader().loadGame(this.engine);
 	}
-	
+
 }
 
 // this will create a new instance as soon as this file is loaded
