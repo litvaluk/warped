@@ -19,7 +19,7 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.scene.findObjectByTag(this.props.tag).getBounds();
+    let ownBounds = this.scene.findObjectByName(this.props.spriteName).getBounds();
     let otherBounds = other.getBounds();
     return ownBounds.x + ownBounds.width > otherBounds.x &&
       ownBounds.x < otherBounds.x + otherBounds.width &&
