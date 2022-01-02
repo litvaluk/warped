@@ -6,7 +6,7 @@ import { PlayerController } from './player-controller';
 import { BulletController } from './bullet-controller';
 
 export class Factory {
-  
+
   private static _instance: Factory;
 
   private _bulletCounter = 0;
@@ -29,7 +29,7 @@ export class Factory {
 
     const backgroundTexture = PIXI.Texture.from('background');
     const background = new ECS.TilingSprite('background', backgroundTexture, SCENE_WIDTH, SCENE_HEIGHT);
-		
+
     const playerTexture = PIXI.Texture.from('player');
     const player = new ECS.Sprite('player', playerTexture);
     player.anchor.set(0.5, 0.5);
@@ -51,23 +51,25 @@ export class Factory {
 
   spawnBullet(scene: ECS.Scene) {
     const playerSprite = scene.findObjectByTag(Tags.PLAYER);
-    
+
     const bulletTexture = PIXI.Texture.from('bullet');
     const bullet = new ECS.Sprite('bullet', bulletTexture);
-    
+
     const initPosition: Position = {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI/2) * BULLET_OFFSET,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI/2) * BULLET_OFFSET,
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * BULLET_OFFSET,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * BULLET_OFFSET,
       angle: playerSprite.rotation
     }
 
     bullet.anchor.set(0.5, 0.5);
     bullet.position.set(initPosition.x, initPosition.y)
     bullet.rotation = initPosition.angle;
+    bullet.scale.x = 0.3
+    bullet.scale.y = 0.3
 
     let tag = Tags.BULLET + ++this._bulletCounter;
     bullet.addTag(tag);
-    
+
     scene.stage.addChild(bullet);
     scene.stage.addComponent(new BulletController(new BulletState(scene, initPosition, tag)));
   }
