@@ -48,7 +48,8 @@ export class GameLoader {
   }
 
   private onAssetsLoaded(engine: ECS.Engine) {
-    Factory.getInstance().loadScene(engine.scene);
+    Factory.getInstance().loadGlobalComponents(engine.scene);
+    Factory.getInstance().loadGameStage(engine.scene);
   }
 
 }

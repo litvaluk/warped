@@ -14,6 +14,8 @@ export class Factory {
 
   private static _instance: Factory;
 
+  private currentComponents: ECS.Component<any>[] = [];
+
   private _laserCounter = 0;
   private _enemyCounter = 0;
   private _meteoriteCounter = 0;
@@ -25,7 +27,7 @@ export class Factory {
     return Factory._instance;
   }
 
-  loadScene(scene: ECS.Scene) {
+  loadGlobalComponents(scene: ECS.Scene) {
     scene.addGlobalComponentAndRun(new ECS.KeyInputComponent());
     scene.addGlobalComponentAndRun(new ECS.PointerInputComponent({
       handleClick: false,
@@ -33,7 +35,9 @@ export class Factory {
       handlePointerOver: true,
       handlePointerRelease: true
     }));
+  }
 
+  loadGameStage(scene: ECS.Scene) {
     scene.stage.sortableChildren = true;
     this._createBackground(scene);
     this._createPlayer(scene);
@@ -42,6 +46,25 @@ export class Factory {
     this._createGameStats(scene);
     this._createPlayerLives(scene);
     this._createScoreText(scene);
+  }
+
+  loadMenuStage(scene: ECS.Scene) {
+    // todo
+  }
+
+  clearStage(scene: ECS.Scene) {
+    this.currentComponents.forEach(component => {
+      scene.stage.removeComponent(component);
+    })
+    this.currentComponents = [];
+    let stageChildrenLength = scene.stage.children.length;
+    scene.stage.removeChildren(0, stageChildrenLength);
+    scene.stage.sortableChildren = false;
+  }
+
+  private _addComponentToStage(scene: ECS.Scene, component: ECS.Component<any>) {
+    this.currentComponents.push(component);
+    scene.stage.addComponent(component);
   }
 
   private _createPlayer(scene: ECS.Scene) {
@@ -54,7 +77,7 @@ export class Factory {
     playerSprite.addTag(Tags.PLAYER);
 
     scene.stage.addChild(playerSprite);
-    scene.stage.addComponent(new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 })));
+    this._addComponentToStage(scene, new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 })));
   }
 
   private _createBackground(scene: ECS.Scene) {
@@ -64,15 +87,15 @@ export class Factory {
   }
 
   private _createEnemySpawner(scene: ECS.Scene) {
-    scene.stage.addComponent(new EnemySpawner(new SpawnerState));
+    this._addComponentToStage(scene, new EnemySpawner(new SpawnerState));
   }
 
   private _createMeteoriteSpawner(scene: ECS.Scene) {
-    scene.stage.addComponent(new MeteoriteSpawner(new SpawnerState));
+    this._addComponentToStage(scene, new MeteoriteSpawner(new SpawnerState));
   }
 
   private _createGameStats(scene: ECS.Scene) {
-    scene.stage.addComponent(new GameStats(new GameStatsState));
+    this._addComponentToStage(scene, new GameStats(new GameStatsState));
   }
 
   private _createPlayerLives(scene: ECS.Scene) {
@@ -122,7 +145,7 @@ export class Factory {
     laserSprite.addTag(Tags.LASER);
 
     scene.stage.addChild(laserSprite);
-    scene.stage.addComponent(new Laser(new LaserState(scene, initPosition, Tags.LASER, spriteName)));
+    this._addComponentToStage(scene, new Laser(new LaserState(scene, initPosition, Tags.LASER, spriteName)));
   }
 
   spawnEnemy(scene: ECS.Scene, position: Position, color: EnemyColor, variant: EnemyVariant) {
@@ -136,7 +159,7 @@ export class Factory {
     enemySprite.addTag(Tags.ENEMY);
 
     scene.stage.addChild(enemySprite);
-    scene.stage.addComponent(new Enemy(new EnemyState(scene, position, Tags.ENEMY, color, variant, spriteName)));
+    this._addComponentToStage(scene, new Enemy(new EnemyState(scene, position, Tags.ENEMY, color, variant, spriteName)));
   }
 
   spawnMeteorite(scene: ECS.Scene, position: Position, color: MeteoriteColor, size: MeteoriteSize) {
@@ -162,7 +185,7 @@ export class Factory {
     meteoriteSprite.addTag(Tags.METEORITE);
 
     scene.stage.addChild(meteoriteSprite);
-    scene.stage.addComponent(new Meteorite(new MeteoriteState(scene, position, Tags.ENEMY, color, size, spriteName)));
+    this._addComponentToStage(scene, new Meteorite(new MeteoriteState(scene, position, Tags.ENEMY, color, size, spriteName)));
   }
 
 }

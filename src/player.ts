@@ -38,6 +38,9 @@ export class Player extends ECS.Component<PlayerState> {
       this._move(Direction.UP);
     } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
       this._move(Direction.RIGHT);
+    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_R)) {
+      Factory.getInstance().clearStage(this.scene);
+      Factory.getInstance().loadGameStage(this.scene);
     }
   }
 
