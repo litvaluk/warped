@@ -6,10 +6,19 @@ export const PLAYER_STARTING_X = SCENE_WIDTH / 2;
 export const PLAYER_STARTING_Y = SCENE_HEIGHT / 2;
 export const PLAYER_MOVE_STEP = 7;
 
+export const STARTING_SCORE = 0;
+export const STARTING_LIVES = 3;
+export const STARTING_LASER_LEVEL = 1;
+
 export const LASER_SPEED = 10;
 export const LASER_OFFSET = 66;
 
 export const ENEMY_SPAWNER_STARTING_INTESITY = 10;
+
+export const HEART_OFFSET_X = 20;
+export const HEART_OFFSET_Y = 10;
+
+export const UI_Z_INDEX = 999;
 
 export type Position = {
   x: number;
@@ -30,8 +39,9 @@ export enum Tags {
   ENEMY = 'enemy'
 }
 
-export enum Messages {
-  MESSAGE = 'message'
+export enum MessageActions {
+  ADD_LIFE = 'add-life',
+  REMOVE_LIFE = 'remove-life'
 }
 
 export enum EnemyColor {

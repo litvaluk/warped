@@ -1,6 +1,6 @@
 import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
-import { LASER_SPEED, Direction, Messages, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant } from './constants';
+import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL } from './constants';
 
 class ObservableState {
 
@@ -10,8 +10,8 @@ class ObservableState {
 		this.scene = scene;
 	}
 
-	public sendMessage(type: Messages, data?: any) {
-		this.scene.sendMessage(new ECS.Message(type, null, null, data));
+	public sendMessage(action: MessageActions, data?: any) {
+		this.scene.sendMessage(new ECS.Message(action, null, null, data));
 	}
 
 }
@@ -150,6 +150,38 @@ export class EnemySpawnerState {
 
 	set nextSpawnTime(nextSpawnTime: Date) {
 		this._nextSpawnTime = nextSpawnTime;
+	}
+
+}
+
+export class GameStatsState {
+
+	private _score = STARTING_SCORE;
+	private _lives = STARTING_LIVES;
+	private _laserLevel = STARTING_LASER_LEVEL;
+
+	public get score(): number {
+		return this._score;
+	}
+
+	public set score(value: number) {
+		this._score = value;
+	}
+
+	public get lives(): number {
+		return this._lives;
+	}
+
+	public set lives(value: number) {
+		this._lives = value;
+	}
+
+	public get laserLevel(): number {
+		return this._laserLevel;
+	}
+
+	public set laserLevel(value: number) {
+		this._laserLevel = value;
 	}
 
 }

@@ -38,6 +38,8 @@ export class GameLoader {
       .add('laser-green', './assets/laser/green.png')
       .add('laser-orange', './assets/laser/orange.png')
       .add('laser-yellow', './assets/laser/yellow.png')
+      // ui
+      .add('heart', './assets/ui/heart.png')
 
       .load(() => this.onAssetsLoaded(engine));
   }
