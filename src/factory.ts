@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, HEART_OFFSET_X, HEART_OFFSET_Y, UI_Z_INDEX } from './constants';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y } from './constants';
 import { EnemySpawnerState, EnemyState, GameStatsState, LaserState, PlayerState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
@@ -37,13 +37,14 @@ export class Factory {
     this._createEnemySpawner(scene);
     this._createGameStats(scene);
     this._createPlayerLives(scene);
+    this._createScoreText(scene);
   }
 
   private _createPlayer(scene: ECS.Scene) {
     const playerTexture = PIXI.Texture.from('player');
     const playerSprite = new ECS.Sprite('player', playerTexture);
 
-    playerSprite.anchor.set(0.5, 0.5);
+    playerSprite.anchor.set(0.5);
     playerSprite.position.x = PLAYER_STARTING_X;
     playerSprite.position.y = PLAYER_STARTING_Y;
     playerSprite.addTag(Tags.PLAYER);
@@ -72,14 +73,22 @@ export class Factory {
     scene.stage.addChild(this.createLifeSprite(3));
   }
 
+  private _createScoreText(scene: ECS.Scene) {
+    let text = new ECS.Text('score-text', `${STARTING_SCORE}`);
+    text.style = TEXT_STYLE_SCORE;
+    text.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - text.height);
+    text.zIndex = UI_Z_INDEX;
+    scene.stage.addChild(text);
+  }
+
   createLifeSprite(order: number): ECS.Sprite {
     const heartSprite = new ECS.Sprite(`life-${order}`, PIXI.Texture.from('heart'));
-    heartSprite.anchor.set(0.5, 0.5);
-    heartSprite.scale.set(0.5, 0.5);
+    heartSprite.anchor.set(0.5);
+    heartSprite.scale.set(0.4);
     heartSprite.zIndex = UI_Z_INDEX;
 
-    const x = SCENE_WIDTH - HEART_OFFSET_X - heartSprite.width / 2 - (order - 1) * heartSprite.width;
-    const y = SCENE_HEIGHT - HEART_OFFSET_Y - heartSprite.height / 2;
+    const x = SCENE_WIDTH + LIFE_OFFSET_X - heartSprite.width / 2 - (order - 1) * heartSprite.width;
+    const y = SCENE_HEIGHT + LIFE_OFFSET_Y - heartSprite.height / 2;
     heartSprite.position.set(x, y);
 
     return heartSprite;
@@ -98,11 +107,10 @@ export class Factory {
       angle: playerSprite.rotation
     }
 
-    laser.anchor.set(0.5, 0.5);
+    laser.anchor.set(0.5);
     laser.position.set(initPosition.x, initPosition.y)
     laser.rotation = initPosition.angle;
-    laser.scale.x = 0.3
-    laser.scale.y = 0.3
+    laser.scale.set(0.3);
     laser.addTag(Tags.LASER);
 
     scene.stage.addChild(laser);
@@ -115,7 +123,7 @@ export class Factory {
     const enemyTexture = PIXI.Texture.from(`enemy-${color}-${variant}`);
     const enemy = new ECS.Sprite(spriteName, enemyTexture);
 
-    enemy.anchor.set(0.5, 0.5);
+    enemy.anchor.set(0.5);
     enemy.position.set(position.x, position.y);
     enemy.addTag(Tags.ENEMY);
 

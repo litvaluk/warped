@@ -1,4 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
+import { EnemyVariant, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL } from './constants';
 import { EnemyState } from './state-structs';
 
 export class Enemy extends ECS.Component<EnemyState> {
@@ -13,6 +14,7 @@ export class Enemy extends ECS.Component<EnemyState> {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         this.finish();
+        this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.props.variant) });
         return;
       }
     }
@@ -31,6 +33,21 @@ export class Enemy extends ECS.Component<EnemyState> {
     let laserSprite = this.scene.findObjectByName(spriteName);
     if (laserSprite) {
       laserSprite.parent.removeChild(laserSprite);
+    }
+  }
+
+  private _getScoreForEnemy(variant: EnemyVariant): number {
+    switch (variant) {
+      case EnemyVariant.SMALL:
+        return SCORE_FOR_ENEMY_SMALL;
+      case EnemyVariant.MEDIUM:
+        return SCORE_FOR_ENEMY_MEDIUM;
+      case EnemyVariant.LARGE:
+        return SCORE_FOR_ENEMY_LARGE;
+      case EnemyVariant.HUGE:
+        return SCORE_FOR_ENEMY_HUGE;
+      default:
+        break;
     }
   }
 
