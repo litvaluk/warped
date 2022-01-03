@@ -25,6 +25,7 @@ export const LASER_SPEED = 10;
 export const LASER_OFFSET = 66;
 
 export const METEORITE_SPEED = 3;
+export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
 
 export const ENEMY_SPAWNER_STARTING_INTESITY = 10;
 export const METEORITE_SPAWNER_STARTING_INTESITY = 10;

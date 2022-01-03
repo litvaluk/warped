@@ -1,5 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
-import { MessageActions, MeteoriteSize, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL } from './constants';
+import { MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL } from './constants';
+import { Factory } from './factory';
 import { MeteoriteState } from './state-structs';
 
 export class Meteorite extends ECS.Component<MeteoriteState> {
@@ -29,10 +30,33 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
+        if (this.props.size !== MeteoriteSize.SMALL) {
+          this._shatterMeteorite();
+        }
         this.finish();
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForMeteorite(this.props.size) });
         return;
       }
+    }
+  }
+
+  private _shatterMeteorite() {
+    let shatteredLeftPosition = { ...this.props.position, angle: this.props.position.angle - METEORITE_SHATTER_ANGLE_CHANGE };
+    let shatteredRightPosition = { ...this.props.position, angle: this.props.position.angle + METEORITE_SHATTER_ANGLE_CHANGE };
+    console.log(`shatteredLeftPosition`, shatteredLeftPosition);
+    console.log(`shatteredrightPosition`, shatteredRightPosition);
+    Factory.getInstance().spawnMeteorite(this.scene, shatteredLeftPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
+    Factory.getInstance().spawnMeteorite(this.scene, shatteredRightPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
+  }
+
+  private _getSmallerMeteoriteSize(size: MeteoriteSize): MeteoriteSize {
+    switch (size) {
+      case MeteoriteSize.LARGE:
+        return MeteoriteSize.MEDIUM;
+      case MeteoriteSize.MEDIUM:
+        return MeteoriteSize.SMALL;
+      default:
+        break;
     }
   }
 
