@@ -1,12 +1,14 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y } from './constants';
-import { EnemySpawnerState, EnemyState, GameStatsState, LaserState, PlayerState } from './state-structs';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize } from './constants';
+import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
 import { Enemy } from './enemy';
 import { EnemySpawner } from './enemy-spawner';
 import { GameStats } from './game-stats';
+import { Meteorite } from './meteorite';
+import { MeteoriteSpawner } from './meteorite-spawner';
 
 export class Factory {
 
@@ -14,6 +16,7 @@ export class Factory {
 
   private _laserCounter = 0;
   private _enemyCounter = 0;
+  private _meteoriteCounter = 0;
 
   public static getInstance(): Factory {
     if (!Factory._instance) {
@@ -35,6 +38,7 @@ export class Factory {
     this._createBackground(scene);
     this._createPlayer(scene);
     this._createEnemySpawner(scene);
+    this._createMeteoriteSpawner(scene);
     this._createGameStats(scene);
     this._createPlayerLives(scene);
     this._createScoreText(scene);
@@ -60,7 +64,11 @@ export class Factory {
   }
 
   private _createEnemySpawner(scene: ECS.Scene) {
-    scene.stage.addComponent(new EnemySpawner(new EnemySpawnerState));
+    scene.stage.addComponent(new EnemySpawner(new SpawnerState));
+  }
+
+  private _createMeteoriteSpawner(scene: ECS.Scene) {
+    scene.stage.addComponent(new MeteoriteSpawner(new SpawnerState));
   }
 
   private _createGameStats(scene: ECS.Scene) {
@@ -99,7 +107,7 @@ export class Factory {
     const spriteName = `laser-${++this._laserCounter}`;
 
     const laserTexture = PIXI.Texture.from(`laser-${color}`);
-    const laser = new ECS.Sprite(spriteName, laserTexture);
+    const laserSprite = new ECS.Sprite(spriteName, laserTexture);
 
     const initPosition: Position = {
       x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * LASER_OFFSET,
@@ -107,13 +115,13 @@ export class Factory {
       angle: playerSprite.rotation
     }
 
-    laser.anchor.set(0.5);
-    laser.position.set(initPosition.x, initPosition.y)
-    laser.rotation = initPosition.angle;
-    laser.scale.set(0.3);
-    laser.addTag(Tags.LASER);
+    laserSprite.anchor.set(0.5);
+    laserSprite.position.set(initPosition.x, initPosition.y)
+    laserSprite.rotation = initPosition.angle;
+    laserSprite.scale.set(0.3);
+    laserSprite.addTag(Tags.LASER);
 
-    scene.stage.addChild(laser);
+    scene.stage.addChild(laserSprite);
     scene.stage.addComponent(new Laser(new LaserState(scene, initPosition, Tags.LASER, spriteName)));
   }
 
@@ -121,14 +129,40 @@ export class Factory {
     const spriteName = `enemy-${++this._enemyCounter}`;
 
     const enemyTexture = PIXI.Texture.from(`enemy-${color}-${variant}`);
-    const enemy = new ECS.Sprite(spriteName, enemyTexture);
+    const enemySprite = new ECS.Sprite(spriteName, enemyTexture);
 
-    enemy.anchor.set(0.5);
-    enemy.position.set(position.x, position.y);
-    enemy.addTag(Tags.ENEMY);
+    enemySprite.anchor.set(0.5);
+    enemySprite.position.set(position.x, position.y);
+    enemySprite.addTag(Tags.ENEMY);
 
-    scene.stage.addChild(enemy);
+    scene.stage.addChild(enemySprite);
     scene.stage.addComponent(new Enemy(new EnemyState(scene, position, Tags.ENEMY, color, variant, spriteName)));
+  }
+
+  spawnMeteorite(scene: ECS.Scene, position: Position, color: MeteoriteColor, size: MeteoriteSize) {
+    const spriteName = `meteorite-${++this._meteoriteCounter}`;
+
+    const meteoriteTexture = PIXI.Texture.from(`meteorite-${color}`);
+    const meteoriteSprite = new ECS.Sprite(spriteName, meteoriteTexture);
+
+    meteoriteSprite.anchor.set(0.5);
+    meteoriteSprite.position.set(position.x, position.y);
+
+    switch (size) {
+      case MeteoriteSize.SMALL:
+        meteoriteSprite.scale.set(0.5);
+        break;
+      case MeteoriteSize.LARGE:
+        meteoriteSprite.scale.set(1.5);
+        break
+      default:
+        break;
+    }
+
+    meteoriteSprite.addTag(Tags.METEORITE);
+
+    scene.stage.addChild(meteoriteSprite);
+    scene.stage.addComponent(new Meteorite(new MeteoriteState(scene, position, Tags.ENEMY, color, size, spriteName)));
   }
 
 }

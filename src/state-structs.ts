@@ -1,6 +1,6 @@
 import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
-import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL } from './constants';
+import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL, MeteoriteSize, MeteoriteColor, SCENE_HEIGHT } from './constants';
 
 class ObservableState {
 
@@ -85,7 +85,7 @@ export class LaserState extends GameObjectState {
 	}
 
 	isOutOfScreen(): boolean {
-		return this.position.x > SCENE_WIDTH || this.position.x < 0 || this.position.y > SCENE_WIDTH || this.position.y < 0;
+		return this.position.x > SCENE_WIDTH || this.position.x < 0 || this.position.y > SCENE_HEIGHT || this.position.y < 0;
 	}
 
 }
@@ -117,7 +117,7 @@ export class EnemyState extends GameObjectState {
 
 }
 
-export class EnemySpawnerState {
+export class SpawnerState {
 
 	private _random = new Random(Date.now());
 	private _intensity: number;
@@ -150,6 +150,45 @@ export class EnemySpawnerState {
 
 	set nextSpawnTime(nextSpawnTime: Date) {
 		this._nextSpawnTime = nextSpawnTime;
+	}
+
+}
+
+export class MeteoriteState extends GameObjectState {
+
+	private _size: MeteoriteSize;
+	private _color: MeteoriteColor;
+	private _spriteName: string;
+
+	constructor(scene: ECS.Scene, initPosition: Position, tag: string, color: MeteoriteColor, size: MeteoriteSize, spriteName: string) {
+		super(scene, initPosition, tag);
+		this._size = size;
+		this._color = color;
+		this._spriteName = spriteName;
+	}
+
+	public get size(): MeteoriteSize {
+		return this._size;
+	}
+
+	public set size(value: MeteoriteSize) {
+		this._size = value;
+	}
+
+	public get color(): MeteoriteColor {
+		return this._color;
+	}
+
+	public set color(value: MeteoriteColor) {
+		this._color = value;
+	}
+
+	public get spriteName(): string {
+		return this._spriteName;
+	}
+
+	public set spriteName(value: string) {
+		this._spriteName = value;
 	}
 
 }

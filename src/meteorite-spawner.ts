@@ -1,19 +1,19 @@
 import * as ECS from '../libs/pixi-ecs';
-import { EnemyColor, EnemyVariant, ENEMY_SPAWNER_STARTING_INTESITY, Position, SCENE_HEIGHT, SCENE_WIDTH } from './constants';
+import { MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, Position, SCENE_HEIGHT, SCENE_WIDTH } from './constants';
 import { Factory } from './factory';
 import { SpawnerState } from './state-structs';
 
-export class EnemySpawner extends ECS.Component<SpawnerState> {
+export class MeteoriteSpawner extends ECS.Component<SpawnerState> {
 
   onInit(): void {
-    this.props.intensity = ENEMY_SPAWNER_STARTING_INTESITY;
+    this.props.intensity = METEORITE_SPAWNER_STARTING_INTESITY;
     this.props.nextSpawnTime = this._calculateNextSpawnTime();
   }
 
   onUpdate(): void {
     if (new Date() > this.props.nextSpawnTime) {
-      Factory.getInstance().spawnEnemy(this.scene, this._getRandomPosition(), this._getRandomColor(), this._getRandomVariant());
-      console.log(`enemy spawned`)
+      Factory.getInstance().spawnMeteorite(this.scene, this._getRandomPosition(), this._getRandomColor(), this._getRandomSize());
+      console.log(`meteorite spawned`)
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }
@@ -24,24 +24,25 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
     let actualInterval = this.props.random.normal(idealInterval * 0.5, idealInterval * 1.5);
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
-    console.log(`next enemy spawn interval: ${actualInterval}ms`);
+    console.log(`next meteorite spawn interval: ${actualInterval}ms`);
     return date;
   }
 
   private _getRandomPosition(): Position {
     let randomX = Math.floor(Math.random() * SCENE_WIDTH);
     let randomY = Math.floor(Math.random() * SCENE_HEIGHT);
-    return { x: randomX, y: randomY, angle: 0 };
+    let randomAngle = Math.random() * 2 * Math.PI;
+    return { x: randomX, y: randomY, angle: randomAngle };
   }
 
-  private _getRandomColor(): EnemyColor {
-    let colors = [EnemyColor.RED, EnemyColor.PURPLE, EnemyColor.GREEN, EnemyColor.ORANGE, EnemyColor.YELLOW];
+  private _getRandomColor(): MeteoriteColor {
+    let colors = [MeteoriteColor.WHITE, MeteoriteColor.GRAY];
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
-  private _getRandomVariant(): EnemyVariant {
-    let variants = [EnemyVariant.SMALL, EnemyVariant.MEDIUM, EnemyVariant.LARGE, EnemyVariant.HUGE];
-    return variants[Math.floor(Math.random() * variants.length)]
+  private _getRandomSize(): MeteoriteSize {
+    let sizes = [MeteoriteSize.SMALL, MeteoriteSize.MEDIUM, MeteoriteSize.LARGE];
+    return sizes[Math.floor(Math.random() * sizes.length)]
   }
 
 }

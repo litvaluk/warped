@@ -16,12 +16,18 @@ export const SCORE_FOR_ENEMY_SMALL = 5;
 export const SCORE_FOR_ENEMY_MEDIUM = 10;
 export const SCORE_FOR_ENEMY_LARGE = 20;
 export const SCORE_FOR_ENEMY_HUGE = 50;
-export const SCORE_FOR_METEOR = 5;
+
+export const SCORE_FOR_METEOR_SMALL = 1;
+export const SCORE_FOR_METEOR_MEDIUM = 2;
+export const SCORE_FOR_METEOR_LARGE = 3;
 
 export const LASER_SPEED = 10;
 export const LASER_OFFSET = 66;
 
+export const METEORITE_SPEED = 3;
+
 export const ENEMY_SPAWNER_STARTING_INTESITY = 10;
+export const METEORITE_SPAWNER_STARTING_INTESITY = 10;
 
 export const LIFE_OFFSET_X = -20;
 export const LIFE_OFFSET_Y = -10;
@@ -52,7 +58,8 @@ export enum Direction {
 export enum Tags {
   PLAYER = 'player',
   LASER = 'laser',
-  ENEMY = 'enemy'
+  ENEMY = 'enemy',
+  METEORITE = 'meteorite'
 }
 
 export enum MessageActions {
@@ -74,6 +81,17 @@ export enum EnemyVariant {
   MEDIUM = '2',
   LARGE = '3',
   HUGE = '4'
+}
+
+export enum MeteoriteColor {
+  WHITE = 'white',
+  GRAY = 'gray'
+}
+
+export enum MeteoriteSize {
+  SMALL = '1',
+  MEDIUM = '2',
+  LARGE = '3'
 }
 
 export enum LaserColor {

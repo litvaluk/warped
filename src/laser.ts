@@ -13,6 +13,7 @@ export class Laser extends ECS.Component<LaserState> {
     laserSprite.position.set(this.props.position.x, this.props.position.y);
     if (this.props.isOutOfScreen()) {
       this.finish();
+      return
     }
   }
 

@@ -31,6 +31,9 @@ export class GameLoader {
       .add('enemy-yellow-2', './assets/spaceship/yellow2.png')
       .add('enemy-yellow-3', './assets/spaceship/yellow3.png')
       .add('enemy-yellow-4', './assets/spaceship/yellow4.png')
+      // meteorites
+      .add('meteorite-white', './assets/meteorite/white.png')
+      .add('meteorite-gray', './assets/meteorite/gray.png')
       // lasers
       .add('laser-blue', './assets/laser/blue.png')
       .add('laser-red', './assets/laser/red.png')
