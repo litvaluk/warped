@@ -1,6 +1,6 @@
 import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
-import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL, MeteoriteSize, MeteoriteColor, SCENE_HEIGHT } from './constants';
+import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL, MeteoriteSize, MeteoriteColor, SCENE_HEIGHT, CollectableType } from './constants';
 
 class ObservableState {
 
@@ -20,13 +20,15 @@ class GameObjectState extends ObservableState {
 
 	protected _position: Position;
 	protected _tag?: string;
+	protected _spriteName: string;
 
-	constructor(scene: ECS.Scene, initPosition: Position, tag?: string) {
+	constructor(scene: ECS.Scene, initPosition: Position, spriteName: string, tag?: string,) {
 		super(scene);
 		this._position = initPosition;
 		if (tag) {
 			this._tag = tag
 		};
+		this._spriteName = spriteName;
 	}
 
 	get position() {
@@ -35,6 +37,10 @@ class GameObjectState extends ObservableState {
 
 	get tag() {
 		return this._tag;
+	}
+
+	get spriteName() {
+		return this._spriteName;
 	}
 
 }
@@ -68,15 +74,8 @@ export class PlayerState extends GameObjectState {
 
 export class LaserState extends GameObjectState {
 
-	private _spriteName: string;
-
 	constructor(scene: ECS.Scene, initPosition: Position, tag: string, spriteName: string) {
-		super(scene, initPosition, tag);
-		this._spriteName = spriteName;
-	}
-
-	get spriteName() {
-		return this._spriteName;
+		super(scene, initPosition, spriteName, tag);
 	}
 
 	updatePosition(): void {
@@ -94,13 +93,11 @@ export class EnemyState extends GameObjectState {
 
 	private _color: EnemyColor;
 	private _variant: EnemyVariant;
-	private _spriteName: string;
 
 	constructor(scene: ECS.Scene, initPosition: Position, tag: string, color: EnemyColor, variant: EnemyVariant, spriteName: string) {
-		super(scene, initPosition, tag);
+		super(scene, initPosition, spriteName, tag);
 		this._color = color;
 		this._variant = variant;
-		this._spriteName = spriteName;
 	}
 
 	get color() {
@@ -109,10 +106,6 @@ export class EnemyState extends GameObjectState {
 
 	get variant() {
 		return this._variant;
-	}
-
-	get spriteName(): string {
-		return this._spriteName;
 	}
 
 }
@@ -158,13 +151,11 @@ export class MeteoriteState extends GameObjectState {
 
 	private _size: MeteoriteSize;
 	private _color: MeteoriteColor;
-	private _spriteName: string;
 
 	constructor(scene: ECS.Scene, initPosition: Position, tag: string, color: MeteoriteColor, size: MeteoriteSize, spriteName: string) {
-		super(scene, initPosition, tag);
+		super(scene, initPosition, spriteName, tag);
 		this._size = size;
 		this._color = color;
-		this._spriteName = spriteName;
 	}
 
 	public get size(): MeteoriteSize {
@@ -181,14 +172,6 @@ export class MeteoriteState extends GameObjectState {
 
 	public set color(value: MeteoriteColor) {
 		this._color = value;
-	}
-
-	public get spriteName(): string {
-		return this._spriteName;
-	}
-
-	public set spriteName(value: string) {
-		this._spriteName = value;
 	}
 
 }
@@ -221,6 +204,25 @@ export class GameStatsState {
 
 	public set laserLevel(value: number) {
 		this._laserLevel = value;
+	}
+
+}
+
+export class CollectableState extends GameObjectState {
+
+	private _type: CollectableType;
+
+	constructor(scene: ECS.Scene, initPosition: Position, tag: string, type: CollectableType, spriteName: string) {
+		super(scene, initPosition, spriteName, tag);
+		this._type = type;
+	}
+
+	public get type(): CollectableType {
+		return this._type;
+	}
+
+	public set type(value: CollectableType) {
+		this._type = value;
 	}
 
 }

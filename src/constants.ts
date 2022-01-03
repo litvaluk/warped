@@ -29,6 +29,7 @@ export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
 
 export const ENEMY_SPAWNER_STARTING_INTESITY = 20;
 export const METEORITE_SPAWNER_STARTING_INTESITY = 20;
+export const COLLECTABLE_SPAWNER_STARTING_INTESITY = 10;
 
 export const LIFE_OFFSET_X = -20;
 export const LIFE_OFFSET_Y = -10;
@@ -60,7 +61,8 @@ export enum Tags {
   PLAYER = 'player',
   LASER = 'laser',
   ENEMY = 'enemy',
-  METEORITE = 'meteorite'
+  METEORITE = 'meteorite',
+  COLLECTABLE = 'collectable'
 }
 
 export enum MessageActions {
@@ -102,4 +104,10 @@ export enum LaserColor {
   GREEN = 'green',
   ORANGE = 'orange',
   YELLOW = 'yellow'
+}
+
+export enum CollectableType {
+  LIFE = 'life',
+  LASER = 'laser',
+  SHIELD = 'shield'
 }

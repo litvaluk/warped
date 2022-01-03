@@ -43,6 +43,10 @@ export class GameLoader {
       .add('laser-yellow', './assets/laser/yellow.png')
       // ui
       .add('heart', './assets/ui/heart.png')
+      // collectables
+      .add('collectable-life', './assets/collectable/life.png')
+      .add('collectable-laser', './assets/collectable/laser.png')
+      .add('collectable-shield', './assets/collectable/shield.png')
 
       .load(() => this.onAssetsLoaded(engine));
   }

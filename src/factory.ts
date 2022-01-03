@@ -1,7 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize } from './constants';
-import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState } from './state-structs';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType } from './constants';
+import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, CollectableState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
 import { Enemy } from './enemy';
@@ -9,6 +9,8 @@ import { EnemySpawner } from './enemy-spawner';
 import { GameStats } from './game-stats';
 import { Meteorite } from './meteorite';
 import { MeteoriteSpawner } from './meteorite-spawner';
+import { Collectable } from './collectable';
+import { CollectableSpawner } from './collectable-spawner';
 
 export class Factory {
 
@@ -19,6 +21,7 @@ export class Factory {
   private _laserCounter = 0;
   private _enemyCounter = 0;
   private _meteoriteCounter = 0;
+  private _collectableCounter = 0;
 
   public static getInstance(): Factory {
     if (!Factory._instance) {
@@ -43,12 +46,21 @@ export class Factory {
     this._createPlayer(scene);
     this._createEnemySpawner(scene);
     this._createMeteoriteSpawner(scene);
+    this._createCollectableSpawner(scene);
     this._createGameStats(scene);
     this._createPlayerLives(scene);
     this._createScoreText(scene);
   }
 
   loadMenuStage(scene: ECS.Scene) {
+    // todo
+  }
+
+  loadHighScoresStage(scene: ECS.Scene) {
+    // todo
+  }
+
+  loadAboutStage(scene: ECS.Scene) {
     // todo
   }
 
@@ -68,8 +80,10 @@ export class Factory {
   }
 
   private _createPlayer(scene: ECS.Scene) {
+    const spriteName = 'player';
+
     const playerTexture = PIXI.Texture.from('player');
-    const playerSprite = new ECS.Sprite('player', playerTexture);
+    const playerSprite = new ECS.Sprite(spriteName, playerTexture);
 
     playerSprite.anchor.set(0.5);
     playerSprite.position.x = PLAYER_STARTING_X;
@@ -77,7 +91,7 @@ export class Factory {
     playerSprite.addTag(Tags.PLAYER);
 
     scene.stage.addChild(playerSprite);
-    this._addComponentToStage(scene, new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 })));
+    this._addComponentToStage(scene, new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player')));
   }
 
   private _createBackground(scene: ECS.Scene) {
@@ -92,6 +106,10 @@ export class Factory {
 
   private _createMeteoriteSpawner(scene: ECS.Scene) {
     this._addComponentToStage(scene, new MeteoriteSpawner(new SpawnerState));
+  }
+
+  private _createCollectableSpawner(scene: ECS.Scene) {
+    this._addComponentToStage(scene, new CollectableSpawner(new SpawnerState));
   }
 
   private _createGameStats(scene: ECS.Scene) {
@@ -186,6 +204,34 @@ export class Factory {
 
     scene.stage.addChild(meteoriteSprite);
     this._addComponentToStage(scene, new Meteorite(new MeteoriteState(scene, position, Tags.ENEMY, color, size, spriteName)));
+  }
+
+  spawnCollectable(scene: ECS.Scene, position: Position, type: CollectableType) {
+    const spriteName = `collectable-${++this._collectableCounter}`;
+
+    let collectableTexture: PIXI.Texture;
+    switch (type) {
+      case CollectableType.LIFE:
+        collectableTexture = PIXI.Texture.from('collectable-life');
+        break;
+      case CollectableType.LASER:
+        collectableTexture = PIXI.Texture.from('collectable-laser');
+        break;
+      case CollectableType.SHIELD:
+        collectableTexture = PIXI.Texture.from('collectable-shield');
+        break;
+      default:
+        break;
+    }
+
+    const collectableSprite = new ECS.Sprite(spriteName, collectableTexture);
+    collectableSprite.scale.set(0.15);
+    collectableSprite.anchor.set(0.5);
+    collectableSprite.position.set(position.x, position.y);
+    collectableSprite.addTag(Tags.COLLECTABLE);
+
+    scene.stage.addChild(collectableSprite);
+    this._addComponentToStage(scene, new Collectable(new CollectableState(scene, position, Tags.COLLECTABLE, type, spriteName)));
   }
 
 }
