@@ -55,7 +55,7 @@ export class Player extends ECS.Component<PlayerState> {
   private _move(direction: Direction) {
     let playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
     if (playerSprite) {
-      this.props.move(direction);
+      this.props.move(direction, playerSprite.getBounds().width, playerSprite.getBounds().height);
       playerSprite.position.set(this.props.position.x, this.props.position.y);
     }
   }

@@ -47,19 +47,27 @@ class GameObjectState extends ObservableState {
 
 export class PlayerState extends GameObjectState {
 
-	move(direction: Direction) {
+	move(direction: Direction, playerWidth: number, playerHeight: number) {
 		switch (direction) {
 			case Direction.LEFT:
-				this._position.x -= PLAYER_MOVE_STEP;
+				if (this._position.x - PLAYER_MOVE_STEP >= 0 + playerWidth / 2) {
+					this._position.x -= PLAYER_MOVE_STEP;
+				}
 				break;
 			case Direction.UP:
-				this._position.y -= PLAYER_MOVE_STEP;
+				if (this._position.y - PLAYER_MOVE_STEP >= 0 + playerHeight / 2) {
+					this._position.y -= PLAYER_MOVE_STEP;
+				}
 				break;
 			case Direction.RIGHT:
-				this._position.x += PLAYER_MOVE_STEP;
+				if (this._position.x + PLAYER_MOVE_STEP <= SCENE_WIDTH - playerWidth / 2) {
+					this._position.x += PLAYER_MOVE_STEP;
+				}
 				break;
 			case Direction.DOWN:
-				this._position.y += PLAYER_MOVE_STEP;
+				if (this._position.y + PLAYER_MOVE_STEP <= SCENE_HEIGHT - playerHeight / 2) {
+					this._position.y += PLAYER_MOVE_STEP;
+				}
 				break;
 			default:
 				break;
