@@ -1,14 +1,15 @@
 import * as ECS from '../libs/pixi-ecs';
 import { EnemyVariant, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL } from './constants';
+import { Factory } from './factory';
 import { EnemyState } from './state-structs';
 
 export class Enemy extends ECS.Component<EnemyState> {
 
   onUpdate() {
-    this._checkLaserCollision();
+    this._checkCollisions();
   }
 
-  private _checkLaserCollision() {
+  private _checkCollisions() {
     let lasers = this.scene.findObjectsByTag('laser');
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
@@ -17,6 +18,19 @@ export class Enemy extends ECS.Component<EnemyState> {
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.props.variant) });
         return;
       }
+    }
+    let playerSprite = this.scene.findObjectByName('player');
+    if (playerSprite && this._collidesWith(playerSprite)) {
+      playerSprite.parent.removeChild(playerSprite);
+      let playerComponent = this.scene.stage.findComponentByName('player');
+      if (playerComponent) {
+        Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
+        playerComponent.finish();
+      }
+      Factory.getInstance().createPlayer(this.scene);
+      this.finish();
+      this.sendMessage(MessageActions.REMOVE_LIFE);
+      return;
     }
   }
 
@@ -56,6 +70,7 @@ export class Enemy extends ECS.Component<EnemyState> {
     if (enemySprite) {
       enemySprite.parent.removeChild(enemySprite);
     }
+    Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
   }
 
 }

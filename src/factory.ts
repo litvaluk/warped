@@ -11,6 +11,7 @@ import { Meteorite } from './meteorite';
 import { MeteoriteSpawner } from './meteorite-spawner';
 import { Collectable } from './collectable';
 import { CollectableSpawner } from './collectable-spawner';
+import { Rectangle } from 'pixi.js';
 
 export class Factory {
 
@@ -43,7 +44,7 @@ export class Factory {
   loadGameStage(scene: ECS.Scene) {
     scene.stage.sortableChildren = true;
     this._createBackground(scene);
-    this._createPlayer(scene);
+    this.createPlayer(scene);
     this._createEnemySpawner(scene);
     this._createMeteoriteSpawner(scene);
     this._createCollectableSpawner(scene);
@@ -79,7 +80,7 @@ export class Factory {
     scene.stage.addComponent(component);
   }
 
-  private _createPlayer(scene: ECS.Scene) {
+  createPlayer(scene: ECS.Scene) {
     const spriteName = 'player';
 
     const playerTexture = PIXI.Texture.from('player');
@@ -91,7 +92,9 @@ export class Factory {
     playerSprite.addTag(Tags.PLAYER);
 
     scene.stage.addChild(playerSprite);
-    this._addComponentToStage(scene, new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player')));
+    let playerComponent = new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player'));
+    playerComponent.name = 'player';
+    this._addComponentToStage(scene, playerComponent);
   }
 
   private _createBackground(scene: ECS.Scene) {
@@ -232,6 +235,36 @@ export class Factory {
 
     scene.stage.addChild(collectableSprite);
     this._addComponentToStage(scene, new Collectable(new CollectableState(scene, position, Tags.COLLECTABLE, type, spriteName)));
+  }
+
+  spawnExplosion(scene: ECS.Scene, position: Position, scale?: number) {
+    const spriteName = 'explosion';
+
+    const explosionSprite = new ECS.AnimatedSprite('explosion', this._createExplosionTextures());
+    explosionSprite.anchor.set(0.5);
+    explosionSprite.position.set(position.x, position.y);
+    explosionSprite.animationSpeed = 0.5;
+    explosionSprite.loop = false;
+    explosionSprite.onComplete = () => {
+      explosionSprite.parent.removeChild(explosionSprite);
+    };
+
+    if (scale) {
+      explosionSprite.scale.set(scale);
+    }
+
+    scene.stage.addChild(explosionSprite);
+
+    explosionSprite.play();
+  }
+
+  private _createExplosionTextures(): PIXI.Texture[] {
+    let textures: PIXI.Texture[] = [];
+    let spritesheet = PIXI.BaseTexture.from('explosion');
+    for (let i = 0; i < 12; i++) {
+      textures.push(new PIXI.Texture(spritesheet, new Rectangle(i * 192, 0, 192, 192)));
+    }
+    return textures;
   }
 
 }

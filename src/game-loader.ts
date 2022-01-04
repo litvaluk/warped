@@ -47,6 +47,8 @@ export class GameLoader {
       .add('collectable-life', './assets/collectable/life.png')
       .add('collectable-laser', './assets/collectable/laser.png')
       .add('collectable-shield', './assets/collectable/shield.png')
+      // explosion animation
+      .add('explosion', './assets/explosion/explosion.png')
 
       .load(() => this.onAssetsLoaded(engine));
   }

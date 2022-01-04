@@ -46,17 +46,29 @@ export class Player extends ECS.Component<PlayerState> {
 
   private _updateAngle(angle: number) {
     this.props.updateAngle(angle);
-    this.scene.findObjectByTag(Tags.PLAYER).rotation = angle;
+    let playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
+    if (playerSprite) {
+      playerSprite.rotation = angle;
+    }
   }
 
   private _move(direction: Direction) {
-    const playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
-    this.props.move(direction);
-    playerSprite.position.set(this.props.position.x, this.props.position.y);
+    let playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
+    if (playerSprite) {
+      this.props.move(direction);
+      playerSprite.position.set(this.props.position.x, this.props.position.y);
+    }
   }
 
   private _shoot() {
     Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE);
+  }
+
+  onRemove(): void {
+    let playerSprite = this.scene.findObjectByName(this.props.spriteName);
+    if (playerSprite) {
+      playerSprite.parent.removeChild(playerSprite);
+    }
   }
 
 }

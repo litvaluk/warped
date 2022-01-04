@@ -11,7 +11,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
       this.finish();
       return;
     }
-    this._checkLaserCollision();
+    this._checkCollisions();
   }
 
   private _updatePosition(): void {
@@ -25,7 +25,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
     return this.props.position.x > SCENE_WIDTH || this.props.position.x < 0 || this.props.position.y > SCENE_HEIGHT || this.props.position.y < 0;
   }
 
-  private _checkLaserCollision() {
+  private _checkCollisions() {
     let lasers = this.scene.findObjectsByTag('laser');
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
@@ -33,10 +33,28 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         if (this.props.size !== MeteoriteSize.SMALL) {
           this._shatterMeteorite();
         }
+        Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
         this.finish();
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForMeteorite(this.props.size) });
         return;
       }
+    }
+    let playerSprite = this.scene.findObjectByName('player');
+    if (playerSprite && this._collidesWith(playerSprite)) {
+      playerSprite.parent.removeChild(playerSprite);
+      let playerComponent = this.scene.stage.findComponentByName('player');
+      if (playerComponent) {
+        Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
+        playerComponent.finish();
+      }
+      Factory.getInstance().createPlayer(this.scene);
+      if (this.props.size !== MeteoriteSize.SMALL) {
+        this._shatterMeteorite();
+      }
+      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
+      this.finish();
+      this.sendMessage(MessageActions.REMOVE_LIFE);
+      return;
     }
   }
 
@@ -68,6 +86,19 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         return SCORE_FOR_METEOR_MEDIUM;
       case MeteoriteSize.LARGE:
         return SCORE_FOR_METEOR_LARGE;
+      default:
+        break;
+    }
+  }
+
+  private _getExplosionScaleForMeteorite(size: MeteoriteSize): number {
+    switch (size) {
+      case MeteoriteSize.SMALL:
+        return 0.2;
+      case MeteoriteSize.MEDIUM:
+        return 0.5;
+      case MeteoriteSize.LARGE:
+        return 1;
       default:
         break;
     }

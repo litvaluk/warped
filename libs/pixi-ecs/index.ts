@@ -15,6 +15,7 @@ import ParticleContainer from './engine/game-objects/particle-container';
 import Sprite from './engine/game-objects/sprite';
 import Text from './engine/game-objects/text';
 import TilingSprite from './engine/game-objects/tiling-sprite';
+import AnimatedSprite from './engine/game-objects/animated-sprite';
 
 import Builder from './engine/builder';
 import Scene from './engine/scene';
@@ -38,7 +39,7 @@ export {
 	Builder,
 	Scene,
 
-	GameObject, Container, ParticleContainer, Sprite, TilingSprite, Text, BitmapText, Graphics, Mesh, NineSlicePlane,
+	GameObject, Container, ParticleContainer, Sprite, TilingSprite, AnimatedSprite, Text, BitmapText, Graphics, Mesh, NineSlicePlane,
 
 	ChainComponent, DebugComponent, FuncComponent, KeyInputComponent, Keys,
 	VirtualGamepadComponent, GamepadButtons, GamepadKeyMapper,

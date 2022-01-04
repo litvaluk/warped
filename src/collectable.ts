@@ -9,7 +9,8 @@ export class Collectable extends ECS.Component<CollectableState> {
   }
 
   private _checkPlayerCollision() {
-    if (this._collidesWith(this.scene.findObjectByName('player'))) {
+    let playerSprite = this.scene.findObjectByName('player');
+    if (playerSprite && this._collidesWith(playerSprite)) {
       console.log(`${this.props.type} picked up`);
       switch (this.props.type) {
         case CollectableType.LIFE:
