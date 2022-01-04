@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, Tag } from './constants';
+import { Direction, LaserColor, LaserOrigin, MessageActions, Tag } from './constants';
 import { Factory } from './factory';
 import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
@@ -17,6 +17,7 @@ export class Player extends ECS.Component<PlayerState> {
 
   onUpdate() {
     this._handleKeyboardInput();
+    this._checkCollisions();
   }
 
   onMessage(msg: ECS.Message) {
@@ -64,6 +65,36 @@ export class Player extends ECS.Component<PlayerState> {
     let playerSprite = this.scene.findObjectByName(this.props.spriteName);
     if (playerSprite) {
       Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, playerSprite as ECS.Sprite, LaserOrigin.PLAYER);
+    }
+  }
+
+  private _checkCollisions() {
+    let lasers = this.scene.findObjectsByTag(Tag.LASER_ENEMY);
+    for (let i = 0; i < lasers.length; i++) {
+      if (this._collidesWith(lasers[i])) {
+        this._removeLaserSprite(lasers[i].name);
+        Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+        this.finish();
+        this.sendMessage(MessageActions.REMOVE_LIFE);
+        Factory.getInstance().createPlayer(this.scene);
+        return;
+      }
+    }
+  }
+
+  private _collidesWith(other: ECS.Container): boolean {
+    let ownBounds = this.scene.findObjectByName(this.props.spriteName).getBounds();
+    let otherBounds = other.getBounds();
+    return ownBounds.x + ownBounds.width > otherBounds.x &&
+      ownBounds.x < otherBounds.x + otherBounds.width &&
+      ownBounds.y + ownBounds.height > otherBounds.y &&
+      ownBounds.y < otherBounds.y + otherBounds.height;
+  }
+
+  private _removeLaserSprite(spriteName: string) {
+    let laserSprite = this.scene.findObjectByName(spriteName);
+    if (laserSprite) {
+      laserSprite.parent.removeChild(laserSprite);
     }
   }
 

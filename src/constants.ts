@@ -23,7 +23,7 @@ export const SCORE_FOR_METEOR_LARGE = 3;
 
 export const LASER_SPEED = 10;
 
-export const ENEMY_SHOOTING_INTENSITY = 50;
+export const ENEMY_SHOOTING_INTENSITY = 60;
 
 export const METEORITE_SPEED = 3;
 export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
