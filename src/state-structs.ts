@@ -101,6 +101,10 @@ export class EnemyState extends GameObjectState {
 
 	private _color: EnemyColor;
 	private _variant: EnemyVariant;
+	private _random = new Random(Date.now());
+	private _intensity: number;
+	private _lastSpawnTime: Date;
+	private _nextSpawnTime: Date;
 
 	constructor(scene: ECS.Scene, initPosition: Position, tag: string, color: EnemyColor, variant: EnemyVariant, spriteName: string) {
 		super(scene, initPosition, spriteName, tag);
@@ -114,6 +118,34 @@ export class EnemyState extends GameObjectState {
 
 	get variant() {
 		return this._variant;
+	}
+
+	get random(): Random {
+		return this._random;
+	}
+
+	get intensity(): number {
+		return this._intensity;
+	}
+
+	get lastSpawnTime(): Date {
+		return this._lastSpawnTime;
+	}
+
+	get nextSpawnTime(): Date {
+		return this._nextSpawnTime;
+	}
+
+	set intensity(intensity: number) {
+		this._intensity = intensity;
+	}
+
+	set lastSpawnTime(lastSpawnTime: Date) {
+		this._lastSpawnTime = lastSpawnTime;
+	}
+
+	set nextSpawnTime(nextSpawnTime: Date) {
+		this._nextSpawnTime = nextSpawnTime;
 	}
 
 }

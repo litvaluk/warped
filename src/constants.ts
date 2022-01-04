@@ -22,7 +22,8 @@ export const SCORE_FOR_METEOR_MEDIUM = 2;
 export const SCORE_FOR_METEOR_LARGE = 3;
 
 export const LASER_SPEED = 10;
-export const LASER_OFFSET = 66;
+
+export const ENEMY_SHOOTING_INTENSITY = 50;
 
 export const METEORITE_SPEED = 3;
 export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
@@ -67,9 +68,10 @@ export enum Direction {
   DOWN = 'down'
 }
 
-export enum Tags {
+export enum Tag {
   PLAYER = 'player',
-  LASER = 'laser',
+  LASER_PLAYER = 'laser-player',
+  LASER_ENEMY = 'laser-enemy',
   ENEMY = 'enemy',
   METEORITE = 'meteorite',
   COLLECTABLE = 'collectable'
@@ -120,4 +122,9 @@ export enum CollectableType {
   LIFE = 'life',
   LASER = 'laser',
   SHIELD = 'shield'
+}
+
+export enum LaserOrigin {
+  PLAYER = 'player',
+  ENEMY = 'enemy'
 }

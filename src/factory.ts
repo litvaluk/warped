@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tags, LASER_OFFSET, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType } from './constants';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin } from './constants';
 import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, CollectableState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
@@ -87,7 +87,7 @@ export class Factory {
     playerSprite.anchor.set(0.5);
     playerSprite.position.x = PLAYER_STARTING_X;
     playerSprite.position.y = PLAYER_STARTING_Y;
-    playerSprite.addTag(Tags.PLAYER);
+    playerSprite.addTag(Tag.PLAYER);
 
     scene.stage.addChild(playerSprite);
     let playerComponent = new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player'));
@@ -140,27 +140,37 @@ export class Factory {
     return heartSprite;
   }
 
-  spawnLaser(scene: ECS.Scene, color: LaserColor) {
-    const playerSprite = scene.findObjectByTag(Tags.PLAYER);
+  spawnLaser(scene: ECS.Scene, color: LaserColor, fromSprite: ECS.Sprite, laserOrigin: LaserOrigin) {
     const spriteName = `laser-${++this._laserCounter}`;
 
     const laserTexture = PIXI.Texture.from(`laser-${color}`);
     const laserSprite = new ECS.Sprite(spriteName, laserTexture);
 
     const initPosition: Position = {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * LASER_OFFSET,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * LASER_OFFSET,
-      angle: playerSprite.rotation
+      x: fromSprite.x + Math.cos(fromSprite.rotation - Math.PI / 2) * fromSprite.getBounds().width / 1.7,
+      y: fromSprite.y + Math.sin(fromSprite.rotation - Math.PI / 2) * fromSprite.getBounds().height / 1.7,
+      angle: fromSprite.rotation
     }
 
     laserSprite.anchor.set(0.5);
     laserSprite.position.set(initPosition.x, initPosition.y)
     laserSprite.rotation = initPosition.angle;
     laserSprite.scale.set(0.3);
-    laserSprite.addTag(Tags.LASER);
+
+    let tag: Tag;
+    switch (laserOrigin) {
+      case (LaserOrigin.PLAYER):
+        tag = Tag.LASER_PLAYER;
+        break;
+      case (LaserOrigin.ENEMY):
+        tag = Tag.LASER_ENEMY
+        break;
+    }
+
+    laserSprite.addTag(tag);
 
     scene.stage.addChild(laserSprite);
-    this._addComponentToStage(scene, new Laser(new LaserState(scene, initPosition, Tags.LASER, spriteName)));
+    this._addComponentToStage(scene, new Laser(new LaserState(scene, initPosition, tag, spriteName)));
   }
 
   spawnEnemy(scene: ECS.Scene, position: Position, color: EnemyColor, variant: EnemyVariant) {
@@ -171,10 +181,10 @@ export class Factory {
 
     enemySprite.anchor.set(0.5);
     enemySprite.position.set(position.x, position.y);
-    enemySprite.addTag(Tags.ENEMY);
+    enemySprite.addTag(Tag.ENEMY);
 
     scene.stage.addChild(enemySprite);
-    this._addComponentToStage(scene, new Enemy(new EnemyState(scene, position, Tags.ENEMY, color, variant, spriteName)));
+    this._addComponentToStage(scene, new Enemy(new EnemyState(scene, position, Tag.ENEMY, color, variant, spriteName)));
   }
 
   spawnMeteorite(scene: ECS.Scene, position: Position, color: MeteoriteColor, size: MeteoriteSize) {
@@ -197,10 +207,10 @@ export class Factory {
         break;
     }
 
-    meteoriteSprite.addTag(Tags.METEORITE);
+    meteoriteSprite.addTag(Tag.METEORITE);
 
     scene.stage.addChild(meteoriteSprite);
-    this._addComponentToStage(scene, new Meteorite(new MeteoriteState(scene, position, Tags.ENEMY, color, size, spriteName)));
+    this._addComponentToStage(scene, new Meteorite(new MeteoriteState(scene, position, Tag.ENEMY, color, size, spriteName)));
   }
 
   spawnCollectable(scene: ECS.Scene, position: Position, type: CollectableType) {
@@ -225,10 +235,10 @@ export class Factory {
     collectableSprite.scale.set(0.15);
     collectableSprite.anchor.set(0.5);
     collectableSprite.position.set(position.x, position.y);
-    collectableSprite.addTag(Tags.COLLECTABLE);
+    collectableSprite.addTag(Tag.COLLECTABLE);
 
     scene.stage.addChild(collectableSprite);
-    this._addComponentToStage(scene, new Collectable(new CollectableState(scene, position, Tags.COLLECTABLE, type, spriteName)));
+    this._addComponentToStage(scene, new Collectable(new CollectableState(scene, position, Tag.COLLECTABLE, type, spriteName)));
   }
 
   spawnExplosion(scene: ECS.Scene, position: Position, scale?: number) {
@@ -240,7 +250,9 @@ export class Factory {
     explosionSprite.animationSpeed = 0.5;
     explosionSprite.loop = false;
     explosionSprite.onComplete = () => {
-      explosionSprite.parent.removeChild(explosionSprite);
+      if (explosionSprite.parent) {
+        explosionSprite.parent.removeChild(explosionSprite);
+      }
     };
 
     if (scale) {

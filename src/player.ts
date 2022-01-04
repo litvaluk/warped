@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, Tags } from './constants';
+import { Direction, LaserColor, LaserOrigin, Tag } from './constants';
 import { Factory } from './factory';
 import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
@@ -46,14 +46,14 @@ export class Player extends ECS.Component<PlayerState> {
 
   private _updateAngle(angle: number) {
     this.props.updateAngle(angle);
-    let playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
+    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
       playerSprite.rotation = angle;
     }
   }
 
   private _move(direction: Direction) {
-    let playerSprite = this.scene.findObjectByTag(Tags.PLAYER);
+    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
       this.props.move(direction, playerSprite.getBounds().width, playerSprite.getBounds().height);
       playerSprite.position.set(this.props.position.x, this.props.position.y);
@@ -61,7 +61,10 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _shoot() {
-    Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE);
+    let playerSprite = this.scene.findObjectByName(this.props.spriteName);
+    if (playerSprite) {
+      Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, playerSprite as ECS.Sprite, LaserOrigin.PLAYER);
+    }
   }
 
   onRemove(): void {

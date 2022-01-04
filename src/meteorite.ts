@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import { Collectable } from './collectable';
-import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE } from './constants';
+import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from './constants';
 import { Factory } from './factory';
 import { MeteoriteState } from './state-structs';
 
@@ -27,7 +27,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   }
 
   private _checkCollisions() {
-    let lasers = this.scene.findObjectsByTag('laser');
+    let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);

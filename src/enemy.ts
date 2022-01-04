@@ -1,16 +1,30 @@
 import * as ECS from '../libs/pixi-ecs';
-import { EnemyVariant, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL } from './constants';
+import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
 import { Factory } from './factory';
 import { EnemyState } from './state-structs';
 
 export class Enemy extends ECS.Component<EnemyState> {
 
+  onInit(): void {
+    this.props.intensity = ENEMY_SHOOTING_INTENSITY;
+    this.props.nextSpawnTime = this._calculateNextShotTime();
+  }
+
   onUpdate() {
+    if (new Date() > this.props.nextSpawnTime) {
+      let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+      if (enemySprite) {
+        Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), enemySprite as ECS.Sprite, LaserOrigin.ENEMY);
+        console.log(`enemy shoots`)
+        this.props.lastSpawnTime = this.props.nextSpawnTime;
+        this.props.nextSpawnTime = this._calculateNextShotTime();
+      }
+    }
     this._checkCollisions();
   }
 
   private _checkCollisions() {
-    let lasers = this.scene.findObjectsByTag('laser');
+    let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
@@ -63,6 +77,32 @@ export class Enemy extends ECS.Component<EnemyState> {
       default:
         break;
     }
+  }
+
+  private _getLaserColorForEnemy(): LaserColor {
+    switch (this.props.color) {
+      case EnemyColor.RED:
+        return LaserColor.RED;
+      case EnemyColor.PURPLE:
+        return LaserColor.PURPLE;
+      case EnemyColor.GREEN:
+        return LaserColor.GREEN;
+      case EnemyColor.ORANGE:
+        return LaserColor.ORANGE;
+      case EnemyColor.YELLOW:
+        return LaserColor.YELLOW;
+      default:
+        break;
+    }
+  }
+
+  private _calculateNextShotTime(): Date {
+    let idealInterval = 60000 / this.props.intensity;
+    let actualInterval = this.props.random.uniform(idealInterval * 0.2, idealInterval * 1.8);
+    let date = new Date();
+    date.setMilliseconds(date.getMilliseconds() + actualInterval);
+    console.log(`next enemy spawn interval: ${actualInterval}ms`);
+    return date;
   }
 
   onRemove() {
