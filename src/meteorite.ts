@@ -1,5 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
-import { MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL } from './constants';
+import { Collectable } from './collectable';
+import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE } from './constants';
 import { Factory } from './factory';
 import { MeteoriteState } from './state-structs';
 
@@ -33,6 +34,10 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         if (this.props.size !== MeteoriteSize.SMALL) {
           this._shatterMeteorite();
         }
+        if (Math.random() < COLLECTABLE_SPAWN_PERCENTAGE) {
+          console.log('collectable spawned');
+          Factory.getInstance().spawnCollectable(this.scene, { ...this.props.position, angle: 0 }, this._chooseCollectableType());
+        }
         Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
         this.finish();
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForMeteorite(this.props.size) });
@@ -61,8 +66,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   private _shatterMeteorite() {
     let shatteredLeftPosition = { ...this.props.position, angle: this.props.position.angle - METEORITE_SHATTER_ANGLE_CHANGE };
     let shatteredRightPosition = { ...this.props.position, angle: this.props.position.angle + METEORITE_SHATTER_ANGLE_CHANGE };
-    console.log(`shatteredLeftPosition`, shatteredLeftPosition);
-    console.log(`shatteredrightPosition`, shatteredRightPosition);
+    console.log('meteorite shattered');
     Factory.getInstance().spawnMeteorite(this.scene, shatteredLeftPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
     Factory.getInstance().spawnMeteorite(this.scene, shatteredRightPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
   }
@@ -118,6 +122,29 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
       ownBounds.x < otherBounds.x + otherBounds.width &&
       ownBounds.y + ownBounds.height > otherBounds.y &&
       ownBounds.y < otherBounds.y + otherBounds.height;
+  }
+
+  private _chooseCollectableType(): CollectableType {
+    let collectables: CollectableOption[] = [
+      { type: CollectableType.LIFE, percentage: LIFE_COLLECTABLE_SPAWN_PERCENTAGE },
+      { type: CollectableType.LASER, percentage: LASER_COLLECTABLE_SPAWN_PERCENTAGE },
+      { type: CollectableType.SHIELD, percentage: SHIELD_COLLECTABLE_SPAWN_PERCENTAGE },
+    ];
+
+    let splitPoints: number[] = [0];
+    for (let i = 0; i < collectables.length; i++) {
+      splitPoints.push(splitPoints[i] + collectables[i].percentage)
+    }
+
+    let cut = Math.random() * splitPoints[splitPoints.length - 1];
+
+    for (let i = 0; i < splitPoints.length - 1; i++) {
+      if (cut < splitPoints[i + 1]) {
+        return collectables[i].type;
+      }
+    }
+
+    return undefined;
   }
 
   onRemove(): void {

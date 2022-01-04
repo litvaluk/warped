@@ -10,7 +10,6 @@ import { GameStats } from './game-stats';
 import { Meteorite } from './meteorite';
 import { MeteoriteSpawner } from './meteorite-spawner';
 import { Collectable } from './collectable';
-import { CollectableSpawner } from './collectable-spawner';
 import { Rectangle } from 'pixi.js';
 
 export class Factory {
@@ -47,7 +46,6 @@ export class Factory {
     this.createPlayer(scene);
     this._createEnemySpawner(scene);
     this._createMeteoriteSpawner(scene);
-    this._createCollectableSpawner(scene);
     this._createGameStats(scene);
     this._createPlayerLives(scene);
     this._createScoreText(scene);
@@ -109,10 +107,6 @@ export class Factory {
 
   private _createMeteoriteSpawner(scene: ECS.Scene) {
     this._addComponentToStage(scene, new MeteoriteSpawner(new SpawnerState));
-  }
-
-  private _createCollectableSpawner(scene: ECS.Scene) {
-    this._addComponentToStage(scene, new CollectableSpawner(new SpawnerState));
   }
 
   private _createGameStats(scene: ECS.Scene) {

@@ -31,6 +31,11 @@ export const ENEMY_SPAWNER_STARTING_INTESITY = 20;
 export const METEORITE_SPAWNER_STARTING_INTESITY = 20;
 export const COLLECTABLE_SPAWNER_STARTING_INTESITY = 10;
 
+export const COLLECTABLE_SPAWN_PERCENTAGE = 0.1;
+export const LIFE_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
+export const LASER_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
+export const SHIELD_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
+
 export const LIFE_OFFSET_X = -20;
 export const LIFE_OFFSET_Y = -10;
 export const SCORE_TEXT_OFFSET_X = 20;
@@ -48,6 +53,11 @@ export type Position = {
   x: number;
   y: number;
   angle: number;
+}
+
+export type CollectableOption = {
+  type: CollectableType;
+  percentage: number;
 }
 
 export enum Direction {
