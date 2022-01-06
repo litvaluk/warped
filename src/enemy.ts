@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
+import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, Position, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
 import { EnemyState } from './state-structs';
@@ -15,7 +15,12 @@ export class Enemy extends ECS.Component<EnemyState> {
     if (new Date() > this.props.nextSpawnTime) {
       let enemySprite = this.scene.findObjectByName(this.props.spriteName);
       if (enemySprite) {
-        Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), enemySprite as ECS.Sprite, LaserOrigin.ENEMY);
+        const pos: Position = {
+          x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
+          y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7,
+          angle: enemySprite.rotation
+        }
+        Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
         this.props.lastSpawnTime = this.props.nextSpawnTime;
         this.props.nextSpawnTime = this._calculateNextShotTime();
       }

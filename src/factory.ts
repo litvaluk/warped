@@ -142,21 +142,15 @@ export class Factory {
     return heartSprite;
   }
 
-  spawnLaser(scene: ECS.Scene, color: LaserColor, fromSprite: ECS.Sprite, laserOrigin: LaserOrigin) {
+  spawnLaser(scene: ECS.Scene, color: LaserColor, position: Position, laserOrigin: LaserOrigin) {
     const spriteName = `laser-${++this._laserCounter}`;
 
     const laserTexture = PIXI.Texture.from(`laser-${color}`);
     const laserSprite = new ECS.Sprite(spriteName, laserTexture);
 
-    const initPosition: Position = {
-      x: fromSprite.x + Math.cos(fromSprite.rotation - Math.PI / 2) * fromSprite.getBounds().width / 1.7,
-      y: fromSprite.y + Math.sin(fromSprite.rotation - Math.PI / 2) * fromSprite.getBounds().height / 1.7,
-      angle: fromSprite.rotation
-    }
-
     laserSprite.anchor.set(0.5);
-    laserSprite.position.set(initPosition.x, initPosition.y)
-    laserSprite.rotation = initPosition.angle;
+    laserSprite.position.set(position.x, position.y)
+    laserSprite.rotation = position.angle;
     laserSprite.scale.set(0.3);
 
     let tag: Tag;
@@ -172,7 +166,7 @@ export class Factory {
     laserSprite.addTag(tag);
 
     scene.stage.addChild(laserSprite);
-    this._addComponentToStage(scene, new Laser(new LaserState(scene, initPosition, tag, spriteName)));
+    this._addComponentToStage(scene, new Laser(new LaserState(scene, position, tag, spriteName)));
   }
 
   spawnEnemy(scene: ECS.Scene, position: Position, color: EnemyColor, variant: EnemyVariant) {

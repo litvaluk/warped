@@ -49,6 +49,7 @@ export class PlayerState extends GameObjectState {
 
 	private _shieldActive = false;
 	private _lastDateShieldActivated: Date;
+	private _laserLevel = STARTING_LASER_LEVEL;
 
 	public get shieldActive() {
 		return this._shieldActive;
@@ -63,6 +64,14 @@ export class PlayerState extends GameObjectState {
 	}
 	public set lastDateShieldActivated(value: Date) {
 		this._lastDateShieldActivated = value;
+	}
+
+	public get laserLevel() {
+		return this._laserLevel;
+	}
+
+	public set laserLevel(value) {
+		this._laserLevel = value;
 	}
 
 	move(direction: Direction, playerWidth: number, playerHeight: number) {

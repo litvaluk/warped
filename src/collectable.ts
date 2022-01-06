@@ -16,7 +16,7 @@ export class Collectable extends ECS.Component<CollectableState> {
           this.sendMessage(MessageActions.ADD_LIFE);
           break;
         case CollectableType.LASER:
-          // todo
+          this.sendMessage(MessageActions.INCREASE_LASER_LEVEL);
           break;
         case CollectableType.SHIELD:
           this.sendMessage(MessageActions.SHIELD_ON);

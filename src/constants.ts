@@ -89,7 +89,8 @@ export enum MessageActions {
   IMMORTALITY_ON = 'immortality-on',
   IMMORTALITY_OFF = 'immortality-off',
   SHIELD_ON = 'shield-on',
-  SHIELD_OFF = 'shield-off'
+  SHIELD_OFF = 'shield-off',
+  INCREASE_LASER_LEVEL = 'increase-laser-level'
 }
 
 export enum EnemyColor {

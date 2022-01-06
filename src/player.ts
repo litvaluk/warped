@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, Tag } from './constants';
+import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Position, SHIELD_DURATION, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
 import { getAngleRad } from './helper';
@@ -15,6 +15,7 @@ export class Player extends ECS.Component<PlayerState> {
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
     this.subscribe(ECS.PointerMessages.POINTER_OVER);
     this.subscribe(MessageActions.SHIELD_ON);
+    this.subscribe(MessageActions.INCREASE_LASER_LEVEL);
   }
 
   onUpdate() {
@@ -32,6 +33,10 @@ export class Player extends ECS.Component<PlayerState> {
       this._updateAngle(angle);
     } else if (msg.action === MessageActions.SHIELD_ON) {
       this._enableShield();
+    } else if (msg.action === MessageActions.INCREASE_LASER_LEVEL) {
+      if (this.props.laserLevel < 3) {
+        this.props.laserLevel += 1;
+      }
     }
   }
 
@@ -83,7 +88,69 @@ export class Player extends ECS.Component<PlayerState> {
   private _shoot() {
     let playerSprite = this.scene.findObjectByName(this.props.spriteName);
     if (playerSprite) {
-      Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, playerSprite as ECS.Sprite, LaserOrigin.PLAYER);
+      switch (this.props.laserLevel) {
+        case 1:
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          break;
+        case 2:
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          break;
+        case 3:
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          break;
+      }
+    }
+  }
+
+  private _getCenterLaserOriginPosition(playerSprite: ECS.Container): Position {
+    return {
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * playerSprite.getBounds().width / 1.7,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * playerSprite.getBounds().height / 1.7,
+      angle: playerSprite.rotation
+    }
+  }
+
+  private _getLeftLaserOriginPosition(playerSprite: ECS.Container): Position {
+    let theta = playerSprite.rotation + Math.PI;
+    let Ox = 20;
+    let Oy = playerSprite.getBounds().height / 1.7;
+    return {
+      x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
+      y: playerSprite.y + Ox * Math.sin(theta) + Oy * Math.cos(theta),
+      angle: playerSprite.rotation
+    }
+  }
+
+  private _getRightLaserOriginPosition(playerSprite: ECS.Container): Position {
+    let theta = playerSprite.rotation + Math.PI;
+    let Ox = -20;
+    let Oy = playerSprite.getBounds().height / 1.7;
+    return {
+      x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
+      y: playerSprite.y + Ox * Math.sin(theta) + Oy * Math.cos(theta),
+      angle: playerSprite.rotation
+    }
+  }
+
+  private _getLeftSideLaserOriginPosition(playerSprite: ECS.Container): Position {
+    let angle = Math.PI / 6;
+    return {
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2 - angle) * playerSprite.getBounds().width / 1.7,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2 - angle) * playerSprite.getBounds().height / 1.7,
+      angle: playerSprite.rotation - angle
+    }
+  }
+
+  private _getRightSideLaserOriginPosition(playerSprite: ECS.Container): Position {
+    let angle = Math.PI / 6;
+    return {
+      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2 + angle) * playerSprite.getBounds().width / 1.7,
+      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2 + angle) * playerSprite.getBounds().height / 1.7,
+      angle: playerSprite.rotation + angle
     }
   }
 
