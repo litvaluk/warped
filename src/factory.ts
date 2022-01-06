@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin } from './constants';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER } from './constants';
 import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, CollectableState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
@@ -51,8 +51,18 @@ export class Factory {
     this._createScoreText(scene);
   }
 
+  loadGameOverStage(scene: ECS.Scene, score: number) {
+    this._createBackground(scene);
+    this._createGameOverTitle(scene);
+    this._createGameOverScoreText(scene, score);
+    this._createGameOverStartAgain(scene);
+    this._createGameOverBackToMenu(scene);
+  }
+
   loadMenuStage(scene: ECS.Scene) {
-    // todo
+    this._createBackground(scene);
+    this._createTitle(scene);
+    this._createMenuItems(scene);
   }
 
   loadHighScoresStage(scene: ECS.Scene) {
@@ -127,6 +137,105 @@ export class Factory {
     text.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - text.height);
     text.zIndex = UI_Z_INDEX;
     scene.stage.addChild(text);
+  }
+
+  private _createTitle(scene: ECS.Scene) {
+    let text = new ECS.Text('title', 'Warped');
+    text.style = TEXT_STYLE_TITLE;
+    text.anchor.set(0.5);
+    text.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 6);
+    scene.stage.addChild(text);
+  }
+
+  private _createMenuItems(scene: ECS.Scene) {
+    const offset = 75;
+
+    let startGame = new ECS.Text('title', 'Start Game');
+    startGame.style = TEXT_STYLE_MENU_ITEM;
+    startGame.anchor.set(0.5);
+    startGame.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5);
+    startGame.interactive = true;
+    startGame.buttonMode = true;
+    startGame.on('mouseover', () => { startGame.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    startGame.on('mouseout', () => { startGame.style = TEXT_STYLE_MENU_ITEM });
+    startGame.on('click', () => {
+      scene.callWithDelay(0, () => {
+        this.clearStage(scene);
+        this.loadGameStage(scene);
+      });
+    });
+    scene.stage.addChild(startGame);
+
+    let highScores = new ECS.Text('high-scores', 'High Scores');
+    highScores.style = TEXT_STYLE_MENU_ITEM;
+    highScores.anchor.set(0.5);
+    highScores.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5 + startGame.getBounds().height / 2 + offset);
+    highScores.interactive = true;
+    highScores.buttonMode = true;
+    highScores.on('mouseover', () => { highScores.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    highScores.on('mouseout', () => { highScores.style = TEXT_STYLE_MENU_ITEM });
+    scene.stage.addChild(highScores);
+
+    let about = new ECS.Text('about', 'About');
+    about.style = TEXT_STYLE_MENU_ITEM;
+    about.anchor.set(0.5);
+    about.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5 + startGame.getBounds().height / 2 + offset + highScores.getBounds().height / 2 + offset);
+    about.interactive = true;
+    about.buttonMode = true;
+    about.on('mouseover', () => { about.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    about.on('mouseout', () => { about.style = TEXT_STYLE_MENU_ITEM });
+    scene.stage.addChild(about);
+  }
+
+  private _createGameOverTitle(scene: ECS.Scene) {
+    let gameOverTitle = new ECS.Text('game-over-title', 'Game Over');
+    gameOverTitle.style = TEXT_STYLE_TITLE;
+    gameOverTitle.anchor.set(0.5);
+    gameOverTitle.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 3);
+    scene.stage.addChild(gameOverTitle);
+  }
+
+  private _createGameOverScoreText(scene: ECS.Scene, score: number) {
+    let scoreText = new ECS.Text('game-over-score', `Score: ${score}`);
+    scoreText.style = TEXT_STYLE_MENU_ITEM;
+    scoreText.anchor.set(0.5);
+    scoreText.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2);
+    scene.stage.addChild(scoreText);
+  }
+
+  private _createGameOverBackToMenu(scene: ECS.Scene) {
+    let backToMenu = new ECS.Text('game-over-back', 'Back to menu');
+    backToMenu.style = TEXT_STYLE_MENU_ITEM;
+    backToMenu.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - backToMenu.height);
+    backToMenu.interactive = true;
+    backToMenu.buttonMode = true;
+    backToMenu.on('mouseover', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    backToMenu.on('mouseout', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM });
+    backToMenu.on('click', () => {
+      scene.callWithDelay(0, () => {
+        this.clearStage(scene);
+        this.loadMenuStage(scene);
+      });
+    });
+    scene.stage.addChild(backToMenu);
+  }
+
+  private _createGameOverStartAgain(scene: ECS.Scene) {
+    let startAgain = new ECS.Text('game-over-start-again', 'Start again');
+    startAgain.style = TEXT_STYLE_MENU_ITEM;
+    startAgain.anchor.set(1, 0);
+    startAgain.position.set(SCENE_WIDTH - SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - startAgain.height);
+    startAgain.interactive = true;
+    startAgain.buttonMode = true;
+    startAgain.on('mouseover', () => { startAgain.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    startAgain.on('mouseout', () => { startAgain.style = TEXT_STYLE_MENU_ITEM });
+    startAgain.on('click', () => {
+      scene.callWithDelay(0, () => {
+        Factory.getInstance().clearStage(scene);
+        Factory.getInstance().loadGameStage(scene);
+      });
+    });
+    scene.stage.addChild(startAgain);
   }
 
   createLifeSprite(order: number): ECS.Sprite {

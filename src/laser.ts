@@ -18,6 +18,9 @@ export class Laser extends ECS.Component<LaserState> {
   }
 
   onRemove(): void {
+    if (!this.scene) {
+      return;
+    }
     let laserSprite = this.scene.findObjectByName(this.props.spriteName);
     if (laserSprite) {
       laserSprite.parent.removeChild(laserSprite);

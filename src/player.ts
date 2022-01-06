@@ -49,9 +49,11 @@ export class Player extends ECS.Component<PlayerState> {
       this._move(Direction.UP);
     } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
       this._move(Direction.RIGHT);
-    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_R)) {
-      Factory.getInstance().clearStage(this.scene);
-      Factory.getInstance().loadGameStage(this.scene);
+    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_ESCAPE)) {
+      this.scene.callWithDelay(0, () => {
+        Factory.getInstance().clearStage(this.scene);
+        Factory.getInstance().loadMenuStage(this.scene);
+      });
     }
   }
 
@@ -198,6 +200,9 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   onRemove(): void {
+    if (!this.scene) {
+      return;
+    }
     let playerSprite = this.scene.findObjectByName(this.props.spriteName);
     if (playerSprite) {
       playerSprite.parent.removeChild(playerSprite);

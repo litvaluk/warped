@@ -150,6 +150,9 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   }
 
   onRemove(): void {
+    if (!this.scene) {
+      return;
+    }
     let meteoriteSprite = this.scene.findObjectByName(this.props.spriteName);
     if (meteoriteSprite) {
       meteoriteSprite.parent.removeChild(meteoriteSprite);

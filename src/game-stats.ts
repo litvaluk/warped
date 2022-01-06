@@ -25,6 +25,12 @@ export class GameStats extends ECS.Component<GameStatsState> {
       if (this.props.lives > 0) {
         this._removeLife();
       }
+      if (this.props.lives === 0) {
+        this.scene.callWithDelay(0, () => {
+          Factory.getInstance().clearStage(this.scene);
+          Factory.getInstance().loadGameOverStage(this.scene, this.props.score);
+        });
+      }
     } else if (msg.action === MessageActions.ADD_SCORE) {
       this._addScore(msg.data.toAdd);
     } else if (msg.action === MessageActions.IMMORTALITY_ON) {

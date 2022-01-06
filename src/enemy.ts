@@ -113,6 +113,9 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   onRemove() {
+    if (!this.scene) {
+      return;
+    }
     let enemySprite = this.scene.findObjectByName(this.props.spriteName);
     if (enemySprite) {
       enemySprite.parent.removeChild(enemySprite);

@@ -55,6 +55,24 @@ export const TEXT_STYLE_SCORE = new PIXI.TextStyle({
   fill: '#fff'
 });
 
+export const TEXT_STYLE_TITLE = new PIXI.TextStyle({
+  fontFamily: 'Aldrich',
+  fontSize: (130),
+  fill: '#fff'
+});
+
+export const TEXT_STYLE_MENU_ITEM = new PIXI.TextStyle({
+  fontFamily: 'Aldrich',
+  fontSize: (60),
+  fill: '#fff'
+});
+
+export const TEXT_STYLE_MENU_ITEM_HOVER = new PIXI.TextStyle({
+  fontFamily: 'Aldrich',
+  fontSize: (60),
+  fill: '#00bbff'
+});
+
 export type Position = {
   x: number;
   y: number;
