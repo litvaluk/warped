@@ -43,26 +43,25 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         return;
       }
     }
-    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
-    if (gameStatsComponent && gameStatsComponent.props.immortal) {
-      return;
-    }
     let playerSprite = this.scene.findObjectByName('player');
     if (playerSprite && this._collidesWith(playerSprite)) {
-      playerSprite.parent.removeChild(playerSprite);
-      let playerComponent = this.scene.stage.findComponentByName('player');
-      if (playerComponent) {
-        Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
-        playerComponent.finish();
-      }
-      Factory.getInstance().createPlayer(this.scene);
-      if (this.props.size !== MeteoriteSize.SMALL) {
-        this._shatterMeteorite();
+      let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
+      if (gameStatsComponent && !gameStatsComponent.props.immortal) {
+        playerSprite.parent.removeChild(playerSprite);
+        let playerComponent = this.scene.stage.findComponentByName('player');
+        if (playerComponent) {
+          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
+          playerComponent.finish();
+        }
+        Factory.getInstance().createPlayer(this.scene);
+        if (this.props.size !== MeteoriteSize.SMALL) {
+          this._shatterMeteorite();
+        }
+        this.sendMessage(MessageActions.IMMORTALITY_ON);
+        this.sendMessage(MessageActions.REMOVE_LIFE);
       }
       Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
       this.finish();
-      this.sendMessage(MessageActions.IMMORTALITY_ON);
-      this.sendMessage(MessageActions.REMOVE_LIFE);
       return;
     }
   }

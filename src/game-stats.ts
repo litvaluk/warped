@@ -1,12 +1,11 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Tag } from './constants';
+import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStatsState } from './state-structs';
+import { Player } from './player';
 
 export class GameStats extends ECS.Component<GameStatsState> {
-
-  private _lastImmortalityStartDate: Date;
 
   onInit(): void {
     super.onInit();
@@ -14,7 +13,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
     this.subscribe(MessageActions.REMOVE_LIFE);
     this.subscribe(MessageActions.ADD_SCORE);
     this.subscribe(MessageActions.IMMORTALITY_ON);
-    this.subscribe(MessageActions.IMMORTALITY_OFF);
+    this.subscribe(MessageActions.SHIELD_ON);
   }
 
   onMessage(msg: ECS.Message) {
@@ -29,9 +28,9 @@ export class GameStats extends ECS.Component<GameStatsState> {
     } else if (msg.action === MessageActions.ADD_SCORE) {
       this._addScore(msg.data.toAdd);
     } else if (msg.action === MessageActions.IMMORTALITY_ON) {
-      this.props.immortal = true;
-      this._lastImmortalityStartDate = new Date();
-      this._startImmortality();
+      this._startImmortality(false);
+    } else if (msg.action === MessageActions.SHIELD_ON) {
+      this._startImmortality(true);
     }
   }
 
@@ -55,21 +54,35 @@ export class GameStats extends ECS.Component<GameStatsState> {
     scoreText.text = `${this.props.score}`;
   }
 
-  private _startImmortality() {
+  private _startImmortality(shield: boolean) {
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
-      this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
-        .beginRepeat(PLAYER_IMMORTALITY_FLASHES)
-        .call(() => { playerSprite.alpha = 0.3 })
-        .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
-        .call(() => { playerSprite.alpha = 1 })
-        .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
-        .endRepeat()
-        .call(() => {
-          this.sendMessage(MessageActions.IMMORTALITY_OFF)
-          this.props.immortal = false;
-        })
-      );
+      this.props.immortal = true;
+      if (!shield) {
+        this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
+          .beginRepeat(PLAYER_IMMORTALITY_FLASHES)
+          .call(() => { playerSprite.alpha = 0.3 })
+          .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
+          .call(() => { playerSprite.alpha = 1 })
+          .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
+          .endRepeat()
+          .call(() => {
+            let playerComponent = this.scene.stage.findComponentByName('player') as Player;
+            if (playerComponent && !playerComponent.props.shieldActive) {
+              this.sendMessage(MessageActions.IMMORTALITY_OFF)
+              this.props.immortal = false;
+            }
+          })
+        );
+      } else {
+        this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
+          .waitTime(1000 * SHIELD_DURATION)
+          .call(() => {
+            this.sendMessage(MessageActions.IMMORTALITY_OFF)
+            this.props.immortal = false;
+          })
+        );
+      }
     }
   }
 

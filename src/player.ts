@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Tag } from './constants';
+import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
 import { getAngleRad } from './helper';
@@ -14,10 +14,12 @@ export class Player extends ECS.Component<PlayerState> {
     this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
     this.subscribe(ECS.PointerMessages.POINTER_OVER);
+    this.subscribe(MessageActions.SHIELD_ON);
   }
 
   onUpdate() {
     this._handleKeyboardInput();
+    this._updateShield();
     this._checkCollisions();
   }
 
@@ -28,6 +30,8 @@ export class Player extends ECS.Component<PlayerState> {
       let pos = msg.data.mousePos;
       let angle = getAngleRad(this.props.position.x, this.props.position.y, pos.posX, pos.posY);
       this._updateAngle(angle);
+    } else if (msg.action === MessageActions.SHIELD_ON) {
+      this._enableShield();
     }
   }
 
@@ -43,6 +47,20 @@ export class Player extends ECS.Component<PlayerState> {
     } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_R)) {
       Factory.getInstance().clearStage(this.scene);
       Factory.getInstance().loadGameStage(this.scene);
+    }
+  }
+
+  private _updateShield() {
+    if (this.props.shieldActive) {
+      let shieldSprite = this.scene.findObjectByName('shield');
+      if (shieldSprite) {
+        shieldSprite.position.set(this.props.position.x, this.props.position.y);
+        if (new Date().getTime() - this.props.lastDateShieldActivated.getTime() > 1000 * SHIELD_DURATION) {
+          shieldSprite.parent.removeChild(shieldSprite);
+          this.props.shieldActive = false;
+          this.sendMessage(MessageActions.SHIELD_OFF);
+        }
+      }
     }
   }
 
@@ -104,10 +122,23 @@ export class Player extends ECS.Component<PlayerState> {
     }
   }
 
+  private _enableShield() {
+    this.props.lastDateShieldActivated = new Date()
+    if (!this.props.shieldActive) {
+      Factory.getInstance().spawnShield(this.scene, this.props.position);
+      this.props.shieldActive = true;
+    }
+  }
+
   onRemove(): void {
     let playerSprite = this.scene.findObjectByName(this.props.spriteName);
     if (playerSprite) {
       playerSprite.parent.removeChild(playerSprite);
+    }
+    let shieldSprite = this.scene.findObjectByName('shield');
+    if (shieldSprite) {
+      shieldSprite.parent.removeChild(shieldSprite);
+      this.sendMessage(MessageActions.SHIELD_OFF);
     }
   }
 

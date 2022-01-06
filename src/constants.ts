@@ -40,6 +40,8 @@ export const LIFE_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
 export const LASER_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
 export const SHIELD_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
 
+export const SHIELD_DURATION = 10;
+
 export const LIFE_OFFSET_X = -20;
 export const LIFE_OFFSET_Y = -10;
 export const SCORE_TEXT_OFFSET_X = 20;
@@ -85,7 +87,9 @@ export enum MessageActions {
   REMOVE_LIFE = 'remove-life',
   ADD_SCORE = 'add-score',
   IMMORTALITY_ON = 'immortality-on',
-  IMMORTALITY_OFF = 'immortality-off'
+  IMMORTALITY_OFF = 'immortality-off',
+  SHIELD_ON = 'shield-on',
+  SHIELD_OFF = 'shield-off'
 }
 
 export enum EnemyColor {

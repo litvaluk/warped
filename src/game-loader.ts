@@ -49,6 +49,8 @@ export class GameLoader {
       .add('collectable-shield', './assets/collectable/shield.webp')
       // explosion animation
       .add('explosion', './assets/explosion/explosion.webp')
+      // shield
+      .add('shield', './assets/shield/shield.webp')
 
       .load(() => this.onAssetsLoaded(engine));
   }

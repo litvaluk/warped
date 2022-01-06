@@ -19,7 +19,7 @@ export class Collectable extends ECS.Component<CollectableState> {
           // todo
           break;
         case CollectableType.SHIELD:
-          // todo
+          this.sendMessage(MessageActions.SHIELD_ON);
           break;
       }
       this.finish();

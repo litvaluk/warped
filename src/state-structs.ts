@@ -47,6 +47,24 @@ class GameObjectState extends ObservableState {
 
 export class PlayerState extends GameObjectState {
 
+	private _shieldActive = false;
+	private _lastDateShieldActivated: Date;
+
+	public get shieldActive() {
+		return this._shieldActive;
+	}
+
+	public set shieldActive(value) {
+		this._shieldActive = value;
+	}
+
+	public get lastDateShieldActivated(): Date {
+		return this._lastDateShieldActivated;
+	}
+	public set lastDateShieldActivated(value: Date) {
+		this._lastDateShieldActivated = value;
+	}
+
 	move(direction: Direction, playerWidth: number, playerHeight: number) {
 		switch (direction) {
 			case Direction.LEFT:

@@ -275,4 +275,18 @@ export class Factory {
     return textures;
   }
 
+  spawnShield(scene: ECS.Scene, position: Position) {
+    const spriteName = 'shield';
+    const shieldTexture = PIXI.Texture.from('shield');
+    const shieldSprite = new ECS.Sprite(spriteName, shieldTexture);
+    shieldSprite.anchor.set(0.5);
+    shieldSprite.scale.set(1.25);
+    shieldSprite.position.set(position.x, position.y);
+    scene.stage.addChild(shieldSprite);
+  }
+
+  addToCurrentComponents(component: ECS.Component) {
+    this.currentComponents.push(component);
+  }
+
 }
