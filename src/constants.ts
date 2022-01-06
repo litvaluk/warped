@@ -8,6 +8,9 @@ export const PLAYER_STARTING_X = 1 / 2 * SCENE_WIDTH;
 export const PLAYER_STARTING_Y = 3 / 4 * SCENE_HEIGHT;
 export const PLAYER_MOVE_STEP = 7;
 
+export const PLAYER_IMMORTALITY_DURATION = 3;
+export const PLAYER_IMMORTALITY_FLASHES = 10;
+
 export const STARTING_SCORE = 0;
 export const STARTING_LIVES = 3;
 export const STARTING_LASER_LEVEL = 1;
@@ -80,7 +83,9 @@ export enum Tag {
 export enum MessageActions {
   ADD_LIFE = 'add-life',
   REMOVE_LIFE = 'remove-life',
-  ADD_SCORE = 'add-score'
+  ADD_SCORE = 'add-score',
+  IMMORTALITY_ON = 'immortality-on',
+  IMMORTALITY_OFF = 'immortality-off'
 }
 
 export enum EnemyColor {

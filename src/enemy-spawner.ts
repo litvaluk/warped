@@ -13,7 +13,6 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
   onUpdate(): void {
     if (new Date() > this.props.nextSpawnTime) {
       Factory.getInstance().spawnEnemy(this.scene, this._getRandomPosition(), this._getRandomColor(), this._getRandomVariant());
-      console.log(`enemy spawned`)
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }
@@ -24,7 +23,6 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
     let actualInterval = this.props.random.normal(idealInterval * 0.5, idealInterval * 1.5);
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
-    console.log(`next enemy spawn interval: ${actualInterval}ms`);
     return date;
   }
 

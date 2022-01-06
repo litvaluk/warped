@@ -1,6 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
 import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
 import { Factory } from './factory';
+import { GameStats } from './game-stats';
 import { EnemyState } from './state-structs';
 
 export class Enemy extends ECS.Component<EnemyState> {
@@ -15,7 +16,6 @@ export class Enemy extends ECS.Component<EnemyState> {
       let enemySprite = this.scene.findObjectByName(this.props.spriteName);
       if (enemySprite) {
         Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), enemySprite as ECS.Sprite, LaserOrigin.ENEMY);
-        console.log(`enemy shoots`)
         this.props.lastSpawnTime = this.props.nextSpawnTime;
         this.props.nextSpawnTime = this._calculateNextShotTime();
       }
@@ -33,6 +33,10 @@ export class Enemy extends ECS.Component<EnemyState> {
         return;
       }
     }
+    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
+    if (gameStatsComponent && gameStatsComponent.props.immortal) {
+      return;
+    }
     let playerSprite = this.scene.findObjectByName('player');
     if (playerSprite && this._collidesWith(playerSprite)) {
       playerSprite.parent.removeChild(playerSprite);
@@ -43,6 +47,7 @@ export class Enemy extends ECS.Component<EnemyState> {
       }
       Factory.getInstance().createPlayer(this.scene);
       this.finish();
+      this.sendMessage(MessageActions.IMMORTALITY_ON);
       this.sendMessage(MessageActions.REMOVE_LIFE);
       return;
     }
@@ -101,7 +106,6 @@ export class Enemy extends ECS.Component<EnemyState> {
     let actualInterval = this.props.random.uniform(idealInterval * 0.2, idealInterval * 1.8);
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
-    console.log(`next enemy spawn interval: ${actualInterval}ms`);
     return date;
   }
 

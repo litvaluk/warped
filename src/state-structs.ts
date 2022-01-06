@@ -221,6 +221,7 @@ export class GameStatsState {
 	private _score = STARTING_SCORE;
 	private _lives = STARTING_LIVES;
 	private _laserLevel = STARTING_LASER_LEVEL;
+	private _immortal = false;
 
 	public get score(): number {
 		return this._score;
@@ -244,6 +245,14 @@ export class GameStatsState {
 
 	public set laserLevel(value: number) {
 		this._laserLevel = value;
+	}
+
+	public get immortal() {
+		return this._immortal;
+	}
+
+	public set immortal(value) {
+		this._immortal = value;
 	}
 
 }

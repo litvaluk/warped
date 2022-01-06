@@ -1,7 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Collectable } from './collectable';
 import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from './constants';
 import { Factory } from './factory';
+import { GameStats } from './game-stats';
 import { MeteoriteState } from './state-structs';
 
 export class Meteorite extends ECS.Component<MeteoriteState> {
@@ -35,7 +35,6 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
           this._shatterMeteorite();
         }
         if (Math.random() < COLLECTABLE_SPAWN_PERCENTAGE) {
-          console.log('collectable spawned');
           Factory.getInstance().spawnCollectable(this.scene, { ...this.props.position, angle: 0 }, this._chooseCollectableType());
         }
         Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
@@ -43,6 +42,10 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForMeteorite(this.props.size) });
         return;
       }
+    }
+    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
+    if (gameStatsComponent && gameStatsComponent.props.immortal) {
+      return;
     }
     let playerSprite = this.scene.findObjectByName('player');
     if (playerSprite && this._collidesWith(playerSprite)) {
@@ -58,6 +61,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
       }
       Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
       this.finish();
+      this.sendMessage(MessageActions.IMMORTALITY_ON);
       this.sendMessage(MessageActions.REMOVE_LIFE);
       return;
     }
@@ -66,7 +70,6 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   private _shatterMeteorite() {
     let shatteredLeftPosition = { ...this.props.position, angle: this.props.position.angle - METEORITE_SHATTER_ANGLE_CHANGE };
     let shatteredRightPosition = { ...this.props.position, angle: this.props.position.angle + METEORITE_SHATTER_ANGLE_CHANGE };
-    console.log('meteorite shattered');
     Factory.getInstance().spawnMeteorite(this.scene, shatteredLeftPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
     Factory.getInstance().spawnMeteorite(this.scene, shatteredRightPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
   }

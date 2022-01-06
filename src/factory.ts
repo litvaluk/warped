@@ -110,7 +110,9 @@ export class Factory {
   }
 
   private _createGameStats(scene: ECS.Scene) {
-    this._addComponentToStage(scene, new GameStats(new GameStatsState));
+    let gameStatsComponent = new GameStats(new GameStatsState);
+    gameStatsComponent.name = 'game-stats';
+    this._addComponentToStage(scene, gameStatsComponent);
   }
 
   private _createPlayerLives(scene: ECS.Scene) {

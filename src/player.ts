@@ -1,6 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, MessageActions, Tag } from './constants';
+import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Tag } from './constants';
 import { Factory } from './factory';
+import { GameStats } from './game-stats';
 import { getAngleRad } from './helper';
 import { PlayerState } from './state-structs';
 
@@ -69,6 +70,10 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _checkCollisions() {
+    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
+    if (gameStatsComponent && gameStatsComponent.props.immortal) {
+      return;
+    }
     let lasers = this.scene.findObjectsByTag(Tag.LASER_ENEMY);
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
@@ -77,6 +82,7 @@ export class Player extends ECS.Component<PlayerState> {
         this.finish();
         this.sendMessage(MessageActions.REMOVE_LIFE);
         Factory.getInstance().createPlayer(this.scene);
+        this.sendMessage(MessageActions.IMMORTALITY_ON);
         return;
       }
     }
