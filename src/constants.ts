@@ -50,6 +50,13 @@ export const SCORE_TEXT_OFFSET_Y = -20;
 
 export const UI_Z_INDEX = 999;
 
+export const HOW_TO_PLAY_TEXT = `
+Try to get as much score as you can by destroying enemy spaceships and meteorites.
+You start with 3 lives. Everytime you get hit or you collide with an enemy spaceship or meteorite,
+you lose a life and your laser upgrades are reset. If you run out of lives, your game is over!
+You can collect three types of upgrades from destroyed meteorites.
+`
+
 export const TEXT_STYLE_SCORE = new PIXI.TextStyle({
   fontFamily: 'Aldrich',
   fontSize: 48,
@@ -72,6 +79,20 @@ export const TEXT_STYLE_MENU_ITEM_HOVER = new PIXI.TextStyle({
   fontFamily: 'Aldrich',
   fontSize: (60),
   fill: '#00bbff'
+});
+
+export const TEXT_STYLE_HOW_TO_PLAY_TITLE = new PIXI.TextStyle({
+  fontFamily: 'Aldrich',
+  fontSize: (100),
+  fill: '#fff'
+});
+
+export const TEXT_STYLE_HOW_TO_PLAY_TEXT = new PIXI.TextStyle({
+  fontFamily: 'Aldrich',
+  fontSize: (32),
+  fill: '#fff',
+  align: 'center',
+  lineHeight: 50
 });
 
 export type Position = {

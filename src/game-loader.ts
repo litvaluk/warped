@@ -43,6 +43,8 @@ export class GameLoader {
       .add('laser-yellow', './assets/laser/yellow.webp')
       // ui
       .add('heart', './assets/ui/heart.webp')
+      .add('key', './assets/ui/key.webp')
+      .add('left-click', './assets/ui/left-click.webp')
       // collectables
       .add('collectable-life', './assets/collectable/life.webp')
       .add('collectable-laser', './assets/collectable/laser.webp')

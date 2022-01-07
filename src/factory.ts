@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER } from './constants';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER, HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TITLE, TEXT_STYLE_HOW_TO_PLAY_TEXT } from './constants';
 import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, CollectableState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
@@ -56,7 +56,7 @@ export class Factory {
     this._createGameOverTitle(scene);
     this._createGameOverScoreText(scene, score);
     this._createGameOverStartAgain(scene);
-    this._createGameOverBackToMenu(scene);
+    this._createBackToMenu(scene);
   }
 
   loadMenuStage(scene: ECS.Scene) {
@@ -69,8 +69,12 @@ export class Factory {
     // todo
   }
 
-  loadAboutStage(scene: ECS.Scene) {
-    // todo
+  loadHowToPlayStage(scene: ECS.Scene) {
+    this._createBackground(scene);
+    this._createHowToPlayTitle(scene);
+    this._createHowToPlayText(scene);
+    this._createHowToPlayControls(scene);
+    this._createBackToMenu(scene);
   }
 
   clearStage(scene: ECS.Scene) {
@@ -176,15 +180,21 @@ export class Factory {
     highScores.on('mouseout', () => { highScores.style = TEXT_STYLE_MENU_ITEM });
     scene.stage.addChild(highScores);
 
-    let about = new ECS.Text('about', 'About');
-    about.style = TEXT_STYLE_MENU_ITEM;
-    about.anchor.set(0.5);
-    about.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5 + startGame.getBounds().height / 2 + offset + highScores.getBounds().height / 2 + offset);
-    about.interactive = true;
-    about.buttonMode = true;
-    about.on('mouseover', () => { about.style = TEXT_STYLE_MENU_ITEM_HOVER });
-    about.on('mouseout', () => { about.style = TEXT_STYLE_MENU_ITEM });
-    scene.stage.addChild(about);
+    let howToPlay = new ECS.Text('how-to-play', 'How To Play');
+    howToPlay.style = TEXT_STYLE_MENU_ITEM;
+    howToPlay.anchor.set(0.5);
+    howToPlay.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5 + startGame.getBounds().height / 2 + offset + highScores.getBounds().height / 2 + offset);
+    howToPlay.interactive = true;
+    howToPlay.buttonMode = true;
+    howToPlay.on('mouseover', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM_HOVER });
+    howToPlay.on('mouseout', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM });
+    howToPlay.on('click', () => {
+      scene.callWithDelay(0, () => {
+        this.clearStage(scene);
+        this.loadHowToPlayStage(scene);
+      });
+    });
+    scene.stage.addChild(howToPlay);
   }
 
   private _createGameOverTitle(scene: ECS.Scene) {
@@ -203,8 +213,8 @@ export class Factory {
     scene.stage.addChild(scoreText);
   }
 
-  private _createGameOverBackToMenu(scene: ECS.Scene) {
-    let backToMenu = new ECS.Text('game-over-back', 'Back to menu');
+  private _createBackToMenu(scene: ECS.Scene) {
+    let backToMenu = new ECS.Text('back-to-menu', 'Back to menu');
     backToMenu.style = TEXT_STYLE_MENU_ITEM;
     backToMenu.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - backToMenu.height);
     backToMenu.interactive = true;
@@ -236,6 +246,82 @@ export class Factory {
       });
     });
     scene.stage.addChild(startAgain);
+  }
+
+  private _createHowToPlayTitle(scene: ECS.Scene) {
+    let gameOverTitle = new ECS.Text('how-to-play-title', 'How To Play');
+    gameOverTitle.style = TEXT_STYLE_HOW_TO_PLAY_TITLE;
+    gameOverTitle.anchor.set(0.5);
+    gameOverTitle.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 8);
+    scene.stage.addChild(gameOverTitle);
+  }
+
+  private _createHowToPlayText(scene: ECS.Scene) {
+    let gameOverTitle = new ECS.Text('how-to-play-text', HOW_TO_PLAY_TEXT);
+    gameOverTitle.style = TEXT_STYLE_HOW_TO_PLAY_TEXT;
+    gameOverTitle.anchor.set(0.5);
+    gameOverTitle.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5);
+    scene.stage.addChild(gameOverTitle);
+  }
+
+  private _createHowToPlayControls(scene: ECS.Scene) {
+    const leftClick = new ECS.Sprite(`left-click`, PIXI.Texture.from('left-click'));
+    leftClick.anchor.set(0.5);
+    leftClick.scale.set(0.4);
+    leftClick.position.set(500, 750);
+
+    let leftClickText = new ECS.Text('left-click-text', 'Shoot');
+    leftClickText.style = TEXT_STYLE_HOW_TO_PLAY_TEXT;
+    leftClickText.anchor.set(0.5);
+    leftClickText.position.set(leftClick.position.x + leftClick.width + 60, leftClick.position.y);
+
+    scene.stage.addChild(leftClick);
+    scene.stage.addChild(leftClickText);
+
+    const w = new ECS.Sprite(`w-key`, PIXI.Texture.from('key'));
+    const a = new ECS.Sprite(`a-key`, PIXI.Texture.from('key'));
+    const s = new ECS.Sprite(`s-key`, PIXI.Texture.from('key'));
+    const d = new ECS.Sprite(`d-key`, PIXI.Texture.from('key'));
+
+    w.anchor.set(0.5);
+    a.anchor.set(0.5);
+    s.anchor.set(0.5);
+    d.anchor.set(0.5);
+
+    w.scale.set(0.3);
+    a.scale.set(0.3);
+    s.scale.set(0.3);
+    d.scale.set(0.3);
+
+    s.position.set(leftClickText.x + 750, leftClick.y + 30);
+    w.position.set(s.x, s.y - s.height - 20);
+    a.position.set(s.x - s.width - 20, s.y);
+    d.position.set(s.x + s.width + 20, s.y);
+
+    scene.stage.addChild(w);
+    scene.stage.addChild(a);
+    scene.stage.addChild(s);
+    scene.stage.addChild(d);
+
+    this._createKeySymbol(scene, 'W', w.position.x, w.position.y);
+    this._createKeySymbol(scene, 'A', a.position.x, a.position.y);
+    this._createKeySymbol(scene, 'S', s.position.x, s.position.y);
+    this._createKeySymbol(scene, 'D', d.position.x, d.position.y);
+
+    let keysText = new ECS.Text('keys-text', 'Move');
+    keysText.style = TEXT_STYLE_HOW_TO_PLAY_TEXT;
+    keysText.anchor.set(0.5);
+    keysText.position.set(s.x - s.width - 120, leftClickText.y);
+
+    scene.stage.addChild(keysText);
+  }
+
+  private _createKeySymbol(scene: ECS.Scene, symbol: string, x: number, y: number) {
+    let symbolText = new ECS.Text(`${symbol.toLowerCase()}-key-text`, symbol);
+    symbolText.style = TEXT_STYLE_HOW_TO_PLAY_TEXT;
+    symbolText.anchor.set(0.5);
+    symbolText.position.set(x, y + 6);
+    scene.stage.addChild(symbolText);
   }
 
   createLifeSprite(order: number): ECS.Sprite {
