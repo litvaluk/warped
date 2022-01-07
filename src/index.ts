@@ -1,5 +1,4 @@
 import * as ECS from '../libs/pixi-ecs';
-import * as PIXI from 'pixi.js';
 import { SCENE_HEIGHT, SCENE_RESOLUTION, SCENE_WIDTH } from './constants';
 import { GameLoader } from './game-loader';
 

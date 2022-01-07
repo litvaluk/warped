@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Position, SHIELD_DURATION, Tag } from './constants';
+import { Direction, LaserColor, LaserOrigin, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Position, SHIELD_DURATION, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
 import { getAngleRad } from './helper';
@@ -8,17 +8,22 @@ import { PlayerState } from './state-structs';
 export class Player extends ECS.Component<PlayerState> {
 
   private _keyInputCmp: ECS.KeyInputComponent;
+  private _leftMouseButtonPressed = false;
 
   onInit() {
     super.onInit();
     this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
+    this.subscribe(ECS.PointerMessages.POINTER_RELEASE);
     this.subscribe(ECS.PointerMessages.POINTER_OVER);
     this.subscribe(MessageActions.SHIELD_ON);
     this.subscribe(MessageActions.INCREASE_LASER_LEVEL);
   }
 
   onUpdate() {
+    if (this._leftMouseButtonPressed) {
+      this._shoot();
+    }
     this._handleKeyboardInput();
     this._updateShield();
     this._checkCollisions();
@@ -26,7 +31,9 @@ export class Player extends ECS.Component<PlayerState> {
 
   onMessage(msg: ECS.Message) {
     if (msg.action === ECS.PointerMessages.POINTER_DOWN) {
-      this._shoot();
+      this._leftMouseButtonPressed = true;
+    } else if (msg.action === ECS.PointerMessages.POINTER_RELEASE) {
+      this._leftMouseButtonPressed = false;
     } else if (msg.action === ECS.PointerMessages.POINTER_OVER) {
       let pos = msg.data.mousePos;
       let angle = getAngleRad(this.props.position.x, this.props.position.y, pos.posX, pos.posY);
@@ -88,6 +95,9 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _shoot() {
+    if (this.props.lastDateShot && new Date().getTime() - this.props.lastDateShot.getTime() < 1000 * LASER_COOLDOWN) {
+      return;
+    }
     let playerSprite = this.scene.findObjectByName(this.props.spriteName);
     if (playerSprite) {
       switch (this.props.laserLevel) {
@@ -106,6 +116,7 @@ export class Player extends ECS.Component<PlayerState> {
           break;
       }
     }
+    this.props.lastDateShot = new Date();
   }
 
   private _getCenterLaserOriginPosition(playerSprite: ECS.Container): Position {

@@ -25,6 +25,7 @@ export const SCORE_FOR_METEOR_MEDIUM = 2;
 export const SCORE_FOR_METEOR_LARGE = 3;
 
 export const LASER_SPEED = 10;
+export const LASER_COOLDOWN = 0.2;
 
 export const ENEMY_SHOOTING_INTENSITY = 60;
 
