@@ -2,6 +2,7 @@ import * as ECS from '../libs/pixi-ecs';
 import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, Position, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
+import { getAngleRad } from './helper';
 import { EnemyState } from './state-structs';
 
 export class Enemy extends ECS.Component<EnemyState> {
@@ -13,18 +14,9 @@ export class Enemy extends ECS.Component<EnemyState> {
 
   onUpdate() {
     if (new Date() > this.props.nextSpawnTime) {
-      let enemySprite = this.scene.findObjectByName(this.props.spriteName);
-      if (enemySprite) {
-        const pos: Position = {
-          x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
-          y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7,
-          angle: enemySprite.rotation
-        }
-        Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
-        this.props.lastSpawnTime = this.props.nextSpawnTime;
-        this.props.nextSpawnTime = this._calculateNextShotTime();
-      }
+      this._shoot();
     }
+    this._updateAngle();
     this._checkCollisions();
   }
 
@@ -69,6 +61,28 @@ export class Enemy extends ECS.Component<EnemyState> {
     let laserSprite = this.scene.findObjectByName(spriteName);
     if (laserSprite) {
       laserSprite.parent.removeChild(laserSprite);
+    }
+  }
+
+  private _shoot() {
+    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    if (enemySprite) {
+      const pos: Position = {
+        x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
+        y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7,
+        angle: enemySprite.rotation
+      }
+      Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
+      this.props.lastSpawnTime = this.props.nextSpawnTime;
+      this.props.nextSpawnTime = this._calculateNextShotTime();
+    }
+  }
+
+  private _updateAngle() {
+    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
+    if (enemySprite && playerSprite) {
+      enemySprite.rotation = getAngleRad(this.props.position.x, this.props.position.y, playerSprite.x, playerSprite.y);
     }
   }
 

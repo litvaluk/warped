@@ -58,7 +58,6 @@ export class GameLoader {
   }
 
   private onAssetsLoaded(engine: ECS.Engine) {
-    Factory.getInstance().loadGlobalComponents(engine.scene);
     Factory.getInstance().loadMenuStage(engine.scene);
   }
 

@@ -16,8 +16,6 @@ export class Factory {
 
   private static _instance: Factory;
 
-  private currentComponents: ECS.Component<any>[] = [];
-
   private _laserCounter = 0;
   private _enemyCounter = 0;
   private _meteoriteCounter = 0;
@@ -42,6 +40,7 @@ export class Factory {
 
   loadGameStage(scene: ECS.Scene) {
     scene.stage.sortableChildren = true;
+    this.loadGlobalComponents(scene);
     this._createBackground(scene);
     this.createPlayer(scene);
     this._createEnemySpawner(scene);
@@ -77,25 +76,10 @@ export class Factory {
     this._createBackToMenu(scene);
   }
 
-  clearStage(scene: ECS.Scene) {
-    this.currentComponents.forEach(component => {
-      scene.stage.removeComponent(component);
-    })
-    this.currentComponents = [];
-    let stageChildrenLength = scene.stage.children.length;
-    scene.stage.removeChildren(0, stageChildrenLength);
-    scene.stage.sortableChildren = false;
-  }
-
-  private _addComponentToStage(scene: ECS.Scene, component: ECS.Component<any>) {
-    this.currentComponents.push(component);
-    scene.stage.addComponent(component);
-  }
-
   createPlayer(scene: ECS.Scene) {
     const spriteName = 'player';
 
-    const playerTexture = PIXI.Texture.from('player');
+    const playerTexture = PIXI.Texture.from('player').clone();
     const playerSprite = new ECS.Sprite(spriteName, playerTexture);
 
     playerSprite.anchor.set(0.5);
@@ -106,27 +90,27 @@ export class Factory {
     scene.stage.addChild(playerSprite);
     let playerComponent = new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player'));
     playerComponent.name = 'player';
-    this._addComponentToStage(scene, playerComponent);
+    scene.stage.addComponent(playerComponent);
   }
 
   private _createBackground(scene: ECS.Scene) {
-    const backgroundTexture = PIXI.Texture.from('background');
+    const backgroundTexture = PIXI.Texture.from('background').clone();
     const background = new ECS.TilingSprite('background', backgroundTexture, SCENE_WIDTH, SCENE_HEIGHT);
     scene.stage.addChild(background);
   }
 
   private _createEnemySpawner(scene: ECS.Scene) {
-    this._addComponentToStage(scene, new EnemySpawner(new SpawnerState));
+    scene.stage.addComponent(new EnemySpawner(new SpawnerState));
   }
 
   private _createMeteoriteSpawner(scene: ECS.Scene) {
-    this._addComponentToStage(scene, new MeteoriteSpawner(new SpawnerState));
+    scene.stage.addComponent(new MeteoriteSpawner(new SpawnerState));
   }
 
   private _createGameStats(scene: ECS.Scene) {
     let gameStatsComponent = new GameStats(new GameStatsState);
     gameStatsComponent.name = 'game-stats';
-    this._addComponentToStage(scene, gameStatsComponent);
+    scene.stage.addComponent(gameStatsComponent);
   }
 
   private _createPlayerLives(scene: ECS.Scene) {
@@ -154,7 +138,7 @@ export class Factory {
   private _createMenuItems(scene: ECS.Scene) {
     const offset = 75;
 
-    let startGame = new ECS.Text('title', 'Start Game');
+    let startGame = new ECS.Text('start-game', 'Start Game');
     startGame.style = TEXT_STYLE_MENU_ITEM;
     startGame.anchor.set(0.5);
     startGame.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5);
@@ -164,7 +148,7 @@ export class Factory {
     startGame.on('mouseout', () => { startGame.style = TEXT_STYLE_MENU_ITEM });
     startGame.on('click', () => {
       scene.callWithDelay(0, () => {
-        this.clearStage(scene);
+        scene.clearScene();
         this.loadGameStage(scene);
       });
     });
@@ -190,7 +174,7 @@ export class Factory {
     howToPlay.on('mouseout', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM });
     howToPlay.on('click', () => {
       scene.callWithDelay(0, () => {
-        this.clearStage(scene);
+        scene.clearScene();
         this.loadHowToPlayStage(scene);
       });
     });
@@ -223,7 +207,7 @@ export class Factory {
     backToMenu.on('mouseout', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM });
     backToMenu.on('click', () => {
       scene.callWithDelay(0, () => {
-        this.clearStage(scene);
+        scene.clearScene();
         this.loadMenuStage(scene);
       });
     });
@@ -241,7 +225,7 @@ export class Factory {
     startAgain.on('mouseout', () => { startAgain.style = TEXT_STYLE_MENU_ITEM });
     startAgain.on('click', () => {
       scene.callWithDelay(0, () => {
-        Factory.getInstance().clearStage(scene);
+        scene.clearScene();
         Factory.getInstance().loadGameStage(scene);
       });
     });
@@ -265,7 +249,7 @@ export class Factory {
   }
 
   private _createHowToPlayControls(scene: ECS.Scene) {
-    const leftClick = new ECS.Sprite(`left-click`, PIXI.Texture.from('left-click'));
+    const leftClick = new ECS.Sprite(`left-click`, PIXI.Texture.from('left-click').clone());
     leftClick.anchor.set(0.5);
     leftClick.scale.set(0.4);
     leftClick.position.set(500, 750);
@@ -278,10 +262,11 @@ export class Factory {
     scene.stage.addChild(leftClick);
     scene.stage.addChild(leftClickText);
 
-    const w = new ECS.Sprite(`w-key`, PIXI.Texture.from('key'));
-    const a = new ECS.Sprite(`a-key`, PIXI.Texture.from('key'));
-    const s = new ECS.Sprite(`s-key`, PIXI.Texture.from('key'));
-    const d = new ECS.Sprite(`d-key`, PIXI.Texture.from('key'));
+    const keyTexture = PIXI.Texture.from('key').clone();
+    const w = new ECS.Sprite(`w-key`, keyTexture);
+    const a = new ECS.Sprite(`a-key`, keyTexture);
+    const s = new ECS.Sprite(`s-key`, keyTexture);
+    const d = new ECS.Sprite(`d-key`, keyTexture);
 
     w.anchor.set(0.5);
     a.anchor.set(0.5);
@@ -325,7 +310,7 @@ export class Factory {
   }
 
   createLifeSprite(order: number): ECS.Sprite {
-    const heartSprite = new ECS.Sprite(`life-${order}`, PIXI.Texture.from('heart'));
+    const heartSprite = new ECS.Sprite(`life-${order}`, PIXI.Texture.from('heart').clone());
     heartSprite.anchor.set(0.5);
     heartSprite.scale.set(0.4);
     heartSprite.zIndex = UI_Z_INDEX;
@@ -340,7 +325,7 @@ export class Factory {
   spawnLaser(scene: ECS.Scene, color: LaserColor, position: Position, laserOrigin: LaserOrigin) {
     const spriteName = `laser-${++this._laserCounter}`;
 
-    const laserTexture = PIXI.Texture.from(`laser-${color}`);
+    const laserTexture = PIXI.Texture.from(`laser-${color}`).clone();
     const laserSprite = new ECS.Sprite(spriteName, laserTexture);
 
     laserSprite.anchor.set(0.5);
@@ -361,13 +346,13 @@ export class Factory {
     laserSprite.addTag(tag);
 
     scene.stage.addChild(laserSprite);
-    this._addComponentToStage(scene, new Laser(new LaserState(scene, position, tag, spriteName)));
+    scene.stage.addComponent(new Laser(new LaserState(scene, position, tag, spriteName)));
   }
 
   spawnEnemy(scene: ECS.Scene, position: Position, color: EnemyColor, variant: EnemyVariant) {
     const spriteName = `enemy-${++this._enemyCounter}`;
 
-    const enemyTexture = PIXI.Texture.from(`enemy-${color}-${variant}`);
+    const enemyTexture = PIXI.Texture.from(`enemy-${color}-${variant}`).clone();
     const enemySprite = new ECS.Sprite(spriteName, enemyTexture);
 
     enemySprite.anchor.set(0.5);
@@ -375,13 +360,13 @@ export class Factory {
     enemySprite.addTag(Tag.ENEMY);
 
     scene.stage.addChild(enemySprite);
-    this._addComponentToStage(scene, new Enemy(new EnemyState(scene, position, Tag.ENEMY, color, variant, spriteName)));
+    scene.stage.addComponent(new Enemy(new EnemyState(scene, position, Tag.ENEMY, color, variant, spriteName)));
   }
 
   spawnMeteorite(scene: ECS.Scene, position: Position, color: MeteoriteColor, size: MeteoriteSize) {
     const spriteName = `meteorite-${++this._meteoriteCounter}`;
 
-    const meteoriteTexture = PIXI.Texture.from(`meteorite-${color}`);
+    const meteoriteTexture = PIXI.Texture.from(`meteorite-${color}`).clone();
     const meteoriteSprite = new ECS.Sprite(spriteName, meteoriteTexture);
 
     meteoriteSprite.anchor.set(0.5);
@@ -401,7 +386,7 @@ export class Factory {
     meteoriteSprite.addTag(Tag.METEORITE);
 
     scene.stage.addChild(meteoriteSprite);
-    this._addComponentToStage(scene, new Meteorite(new MeteoriteState(scene, position, Tag.ENEMY, color, size, spriteName)));
+    scene.stage.addComponent(new Meteorite(new MeteoriteState(scene, position, Tag.ENEMY, color, size, spriteName)));
   }
 
   spawnCollectable(scene: ECS.Scene, position: Position, type: CollectableType) {
@@ -410,13 +395,13 @@ export class Factory {
     let collectableTexture: PIXI.Texture;
     switch (type) {
       case CollectableType.LIFE:
-        collectableTexture = PIXI.Texture.from('collectable-life');
+        collectableTexture = PIXI.Texture.from('collectable-life').clone();
         break;
       case CollectableType.LASER:
-        collectableTexture = PIXI.Texture.from('collectable-laser');
+        collectableTexture = PIXI.Texture.from('collectable-laser').clone();
         break;
       case CollectableType.SHIELD:
-        collectableTexture = PIXI.Texture.from('collectable-shield');
+        collectableTexture = PIXI.Texture.from('collectable-shield').clone();
         break;
       default:
         break;
@@ -429,7 +414,7 @@ export class Factory {
     collectableSprite.addTag(Tag.COLLECTABLE);
 
     scene.stage.addChild(collectableSprite);
-    this._addComponentToStage(scene, new Collectable(new CollectableState(scene, position, Tag.COLLECTABLE, type, spriteName)));
+    scene.stage.addComponent(new Collectable(new CollectableState(scene, position, Tag.COLLECTABLE, type, spriteName)));
   }
 
   spawnExplosion(scene: ECS.Scene, position: Position, scale?: number) {
@@ -466,16 +451,12 @@ export class Factory {
 
   spawnShield(scene: ECS.Scene, position: Position) {
     const spriteName = 'shield';
-    const shieldTexture = PIXI.Texture.from('shield');
+    const shieldTexture = PIXI.Texture.from('shield').clone();
     const shieldSprite = new ECS.Sprite(spriteName, shieldTexture);
     shieldSprite.anchor.set(0.5);
     shieldSprite.scale.set(1.25);
     shieldSprite.position.set(position.x, position.y);
     scene.stage.addChild(shieldSprite);
-  }
-
-  addToCurrentComponents(component: ECS.Component) {
-    this.currentComponents.push(component);
   }
 
 }

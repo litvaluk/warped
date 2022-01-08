@@ -58,7 +58,7 @@ export class Player extends ECS.Component<PlayerState> {
       this._move(Direction.RIGHT);
     } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_ESCAPE)) {
       this.scene.callWithDelay(0, () => {
-        Factory.getInstance().clearStage(this.scene);
+        this.scene.clearScene();
         Factory.getInstance().loadMenuStage(this.scene);
       });
     }
