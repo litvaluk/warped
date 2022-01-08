@@ -12,7 +12,7 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
 
   onUpdate(): void {
     if (new Date() > this.props.nextSpawnTime) {
-      Factory.getInstance().spawnEnemy(this.scene, this._getRandomPosition(), this._getRandomColor(), this._getRandomVariant());
+      Factory.getInstance().spawnEnemy(this.scene, this._getRandomColor(), this._getRandomVariant());
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }
@@ -24,12 +24,6 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
     return date;
-  }
-
-  private _getRandomPosition(): Position {
-    let randomX = Math.floor(Math.random() * SCENE_WIDTH);
-    let randomY = Math.floor(Math.random() * SCENE_HEIGHT);
-    return { x: randomX, y: randomY, angle: 0 };
   }
 
   private _getRandomColor(): EnemyColor {

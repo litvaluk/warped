@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, LaserColor, LaserOrigin, MessageActions, Position, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
+import { EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
 import { Factory } from './factory';
 import { GameStats } from './game-stats';
 import { getAngleRad } from './helper';
@@ -17,6 +17,7 @@ export class Enemy extends ECS.Component<EnemyState> {
       this._shoot();
     }
     this._updateAngle();
+    this._move();
     this._checkCollisions();
   }
 
@@ -83,7 +84,24 @@ export class Enemy extends ECS.Component<EnemyState> {
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (enemySprite && playerSprite) {
       enemySprite.rotation = getAngleRad(this.props.position.x, this.props.position.y, playerSprite.x, playerSprite.y);
+      this.props.position.angle = enemySprite.rotation;
     }
+  }
+
+  private _move() {
+    const deltaX = ENEMY_SPEED * Math.cos(this.props.position.angle - Math.PI / 2);
+    const deltaY = ENEMY_SPEED * Math.sin(this.props.position.angle - Math.PI / 2);
+    const newX = this.props.position.x + deltaX;
+    const newY = this.props.position.y + deltaY;
+
+    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    if (enemySprite) {
+      enemySprite.x = newX;
+      enemySprite.y = newY;
+    }
+
+    this.props.position.x = newX;
+    this.props.position.y = newY;
   }
 
   private _getScoreForEnemy(variant: EnemyVariant): number {

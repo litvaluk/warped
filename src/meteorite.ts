@@ -23,7 +23,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   }
 
   private _isOutOfScreen(): boolean {
-    return this.props.position.x > SCENE_WIDTH || this.props.position.x < 0 || this.props.position.y > SCENE_HEIGHT || this.props.position.y < 0;
+    return this.props.position.x > SCENE_WIDTH + 100 || this.props.position.x < 0 - 100 || this.props.position.y > SCENE_HEIGHT + 100 || this.props.position.y < 0 - 100;
   }
 
   private _checkCollisions() {
@@ -69,8 +69,8 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   private _shatterMeteorite() {
     let shatteredLeftPosition = { ...this.props.position, angle: this.props.position.angle - METEORITE_SHATTER_ANGLE_CHANGE };
     let shatteredRightPosition = { ...this.props.position, angle: this.props.position.angle + METEORITE_SHATTER_ANGLE_CHANGE };
-    Factory.getInstance().spawnMeteorite(this.scene, shatteredLeftPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
-    Factory.getInstance().spawnMeteorite(this.scene, shatteredRightPosition, this.props.color, this._getSmallerMeteoriteSize(this.props.size));
+    Factory.getInstance().spawnMeteorite(this.scene, this.props.color, this._getSmallerMeteoriteSize(this.props.size), shatteredLeftPosition);
+    Factory.getInstance().spawnMeteorite(this.scene, this.props.color, this._getSmallerMeteoriteSize(this.props.size), shatteredRightPosition);
   }
 
   private _getSmallerMeteoriteSize(size: MeteoriteSize): MeteoriteSize {

@@ -12,7 +12,7 @@ export class MeteoriteSpawner extends ECS.Component<SpawnerState> {
 
   onUpdate(): void {
     if (new Date() > this.props.nextSpawnTime) {
-      Factory.getInstance().spawnMeteorite(this.scene, this._getRandomPosition(), this._getRandomColor(), this._getRandomSize());
+      Factory.getInstance().spawnMeteorite(this.scene, this._getRandomColor(), this._getRandomSize());
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }
@@ -26,12 +26,12 @@ export class MeteoriteSpawner extends ECS.Component<SpawnerState> {
     return date;
   }
 
-  private _getRandomPosition(): Position {
-    let randomX = Math.floor(Math.random() * SCENE_WIDTH);
-    let randomY = Math.floor(Math.random() * SCENE_HEIGHT);
-    let randomAngle = Math.random() * 2 * Math.PI;
-    return { x: randomX, y: randomY, angle: randomAngle };
-  }
+  // private _getRandomPosition(): Position {
+  //   let randomX = Math.floor(Math.random() * SCENE_WIDTH);
+  //   let randomY = Math.floor(Math.random() * SCENE_HEIGHT);
+  //   let randomAngle = Math.random() * 2 * Math.PI;
+  //   return { x: randomX, y: randomY, angle: randomAngle };
+  // }
 
   private _getRandomColor(): MeteoriteColor {
     let colors = [MeteoriteColor.WHITE, MeteoriteColor.GRAY];

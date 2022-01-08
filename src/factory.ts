@@ -350,7 +350,7 @@ export class Factory {
     scene.stage.addComponent(new Laser(new LaserState(scene, position, tag, spriteName)));
   }
 
-  spawnEnemy(scene: ECS.Scene, position: Position, color: EnemyColor, variant: EnemyVariant) {
+  spawnEnemy(scene: ECS.Scene, color: EnemyColor, variant: EnemyVariant) {
     const spriteName = `enemy-${++this._enemyCounter}`;
 
     const enemyTexture = PIXI.Texture.from(`enemy-${color}-${variant}`).clone();
@@ -358,21 +358,23 @@ export class Factory {
 
     enemySprite.anchor.set(0.5);
     enemySprite.scale.set(0.7);
+
+    const position = this._getRandomSpawnPoint(enemySprite);
     enemySprite.position.set(position.x, position.y);
+
     enemySprite.addTag(Tag.ENEMY);
 
     scene.stage.addChild(enemySprite);
     scene.stage.addComponent(new Enemy(new EnemyState(scene, position, Tag.ENEMY, color, variant, spriteName)));
   }
 
-  spawnMeteorite(scene: ECS.Scene, position: Position, color: MeteoriteColor, size: MeteoriteSize) {
+  spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, position?: Position) {
     const spriteName = `meteorite-${++this._meteoriteCounter}`;
 
     const meteoriteTexture = PIXI.Texture.from(`meteorite-${color}`).clone();
     const meteoriteSprite = new ECS.Sprite(spriteName, meteoriteTexture);
 
     meteoriteSprite.anchor.set(0.5);
-    meteoriteSprite.position.set(position.x, position.y);
 
     switch (size) {
       case MeteoriteSize.SMALL:
@@ -387,6 +389,11 @@ export class Factory {
     }
 
     meteoriteSprite.addTag(Tag.METEORITE);
+    if (!position) {
+      position = this._getRandomSpawnPoint(meteoriteSprite);
+    }
+    meteoriteSprite.position.set(position.x, position.y);
+    meteoriteSprite.rotation = position.angle;
 
     scene.stage.addChild(meteoriteSprite);
     scene.stage.addComponent(new Meteorite(new MeteoriteState(scene, position, Tag.ENEMY, color, size, spriteName)));
@@ -423,7 +430,7 @@ export class Factory {
   spawnExplosion(scene: ECS.Scene, position: Position, scale?: number) {
     const spriteName = 'explosion';
 
-    const explosionSprite = new ECS.AnimatedSprite('explosion', this._createExplosionTextures());
+    const explosionSprite = new ECS.AnimatedSprite(spriteName, this._createExplosionTextures());
     explosionSprite.anchor.set(0.5);
     explosionSprite.position.set(position.x, position.y);
     explosionSprite.animationSpeed = 0.5;
@@ -460,6 +467,44 @@ export class Factory {
     shieldSprite.scale.set(1);
     shieldSprite.position.set(position.x, position.y);
     scene.stage.addChild(shieldSprite);
+  }
+
+  private _getRandomSpawnPoint(container: ECS.Container): Position {
+    const a = SCENE_WIDTH + container.width;
+    const b = SCENE_HEIGHT + container.height;
+    const perimeter = 2 * a + 2 * b;
+    const rand = Math.random() * perimeter;
+
+    let x: number;
+    let y: number;
+    let angle: number;
+
+    const angleMax = 0.8;
+    const angleMin = 0.2;
+
+    if (rand < a) {
+      // top
+      x = rand;
+      y = -container.height / 2;
+      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((0.5 + angleMin) * Math.PI);
+    } else if (rand < a + b) {
+      // right
+      x = SCENE_WIDTH + container.width / 2;
+      y = rand - a;
+      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((1 + angleMin) * Math.PI);
+    } else if (rand < 2 * a + b) {
+      // bottom
+      x = rand - a - b;
+      y = SCENE_HEIGHT + container.height / 2;
+      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((1.5 + angleMin) * Math.PI);
+    } else {
+      // left
+      x = -container.width / 2;
+      y = rand - 2 * a - b;
+      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((-0.5 + angleMin) * Math.PI);
+    }
+
+    return { x: x, y: y, angle: angle };
   }
 
 }
