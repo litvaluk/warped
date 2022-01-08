@@ -1,6 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER, HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TITLE, TEXT_STYLE_HOW_TO_PLAY_TEXT } from './constants';
+import * as PIXISound from '@pixi/sound';
+import { SCENE_HEIGHT, SCENE_WIDTH, Position, Tag, PLAYER_STARTING_X, PLAYER_STARTING_Y, EnemyColor, EnemyVariant, LaserColor, LIFE_OFFSET_X, LIFE_OFFSET_Y, UI_Z_INDEX, STARTING_SCORE, TEXT_STYLE_SCORE, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, MeteoriteColor, MeteoriteSize, CollectableType, LaserOrigin, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER, HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TITLE, TEXT_STYLE_HOW_TO_PLAY_TEXT, PLAY_SOUND, VOLUME } from './constants';
 import { SpawnerState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, CollectableState } from './state-structs';
 import { Player } from './player';
 import { Laser } from './laser';
@@ -323,7 +324,7 @@ export class Factory {
     return heartSprite;
   }
 
-  spawnLaser(scene: ECS.Scene, color: LaserColor, position: Position, laserOrigin: LaserOrigin) {
+  spawnLaser(scene: ECS.Scene, color: LaserColor, position: Position, laserOrigin: LaserOrigin, playSound: boolean = true) {
     const spriteName = `laser-${++this._laserCounter}`;
 
     const laserTexture = PIXI.Texture.from(`laser-${color}`).clone();
@@ -348,6 +349,10 @@ export class Factory {
 
     scene.stage.addChild(laserSprite);
     scene.stage.addComponent(new Laser(new LaserState(scene, position, tag, spriteName)));
+
+    if (PLAY_SOUND && playSound) {
+      PIXISound.sound.play('laser-sfx', { volume: VOLUME * 0.2 });
+    }
   }
 
   spawnEnemy(scene: ECS.Scene, color: EnemyColor, variant: EnemyVariant) {
@@ -427,7 +432,7 @@ export class Factory {
     scene.stage.addComponent(new Collectable(new CollectableState(scene, position, Tag.COLLECTABLE, type, spriteName)));
   }
 
-  spawnExplosion(scene: ECS.Scene, position: Position, scale?: number) {
+  spawnExplosion(scene: ECS.Scene, position: Position, scale?: number, playSound: boolean = true) {
     const spriteName = 'explosion';
 
     const explosionSprite = new ECS.AnimatedSprite(spriteName, this._createExplosionTextures());
@@ -446,8 +451,11 @@ export class Factory {
     }
 
     scene.stage.addChild(explosionSprite);
-
     explosionSprite.play();
+
+    if (PLAY_SOUND && playSound) {
+      PIXISound.sound.play('explosion-sfx', { volume: VOLUME });
+    }
   }
 
   private _createExplosionTextures(): PIXI.Texture[] {

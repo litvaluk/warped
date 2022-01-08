@@ -152,7 +152,7 @@ export class Enemy extends ECS.Component<EnemyState> {
     if (enemySprite) {
       enemySprite.parent.removeChild(enemySprite);
     }
-    Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+    Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, null, false);
   }
 
 }

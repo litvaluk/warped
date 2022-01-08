@@ -4,6 +4,9 @@ export const SCENE_WIDTH = 1920;
 export const SCENE_HEIGHT = 1080;
 export const SCENE_RESOLUTION = 1;
 
+export const PLAY_SOUND = true;
+export const VOLUME = 1;
+
 export const PLAYER_STARTING_X = 1 / 2 * SCENE_WIDTH;
 export const PLAYER_STARTING_Y = 3 / 4 * SCENE_HEIGHT;
 export const PLAYER_SPEED = 6;

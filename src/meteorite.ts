@@ -60,7 +60,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
+      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size), false);
       this.finish();
       return;
     }

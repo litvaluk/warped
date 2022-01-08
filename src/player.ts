@@ -106,13 +106,13 @@ export class Player extends ECS.Component<PlayerState> {
           break;
         case 2:
           Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
           break;
         case 3:
           Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
           break;
       }
     }

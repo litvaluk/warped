@@ -10,11 +10,8 @@
     "compile-test": "tsc --project tsconfig.json --noemit"
   },
   "dependencies": {
-    "eventemitter3": "^4.0.7",
-    "matter-js": "^0.17.1",
-    "pixi-sound": "^3.0.5",
-    "pixi.js": "^6.1.2",
-    "three": "^0.131.3"
+    "@pixi/sound": "^4.2.0",
+    "pixi.js": "^6.2.1"
   },
   "devDependencies": {
     "@types/matter-js": "^0.17.5",

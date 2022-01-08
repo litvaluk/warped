@@ -1,5 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
-import { CollectableType, MessageActions } from './constants';
+import * as PIXISound from '@pixi/sound';
+import { CollectableType, MessageActions, PLAY_SOUND, VOLUME } from './constants';
 import { CollectableState } from './state-structs';
 
 export class Collectable extends ECS.Component<CollectableState> {
@@ -21,6 +22,9 @@ export class Collectable extends ECS.Component<CollectableState> {
         case CollectableType.SHIELD:
           this.sendMessage(MessageActions.SHIELD_ON);
           break;
+      }
+      if (PLAY_SOUND) {
+        PIXISound.sound.play('pickup-sfx', { volume: VOLUME * 1.3 });
       }
       this.finish();
     }
