@@ -18,6 +18,9 @@ export const STARTING_SCORE = 0;
 export const STARTING_LIVES = 3;
 export const STARTING_LASER_LEVEL = 1;
 
+export const DIFFICULTY_INCREASE_INTERVAL = 20;
+export const DIFFICULTY_INCREASE_MULTIPLIER = 1.2;
+
 export const SCORE_FOR_ENEMY_SMALL = 5;
 export const SCORE_FOR_ENEMY_MEDIUM = 10;
 export const SCORE_FOR_ENEMY_LARGE = 20;
