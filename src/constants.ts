@@ -35,6 +35,7 @@ export const LASER_COOLDOWN = 0.2;
 
 export const ENEMY_SHOOTING_INTENSITY = 50;
 export const ENEMY_SPEED = 2;
+export const ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY = 15;
 
 export const METEORITE_SPEED = 2.5;
 export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;

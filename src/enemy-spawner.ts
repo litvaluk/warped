@@ -23,7 +23,6 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
     if (now.getTime() > this._lastDifficultyIncreaseDate.getTime() + 1000 * DIFFICULTY_INCREASE_INTERVAL) {
       this._lastDifficultyIncreaseDate = now;
       this.props.intensity *= DIFFICULTY_INCREASE_MULTIPLIER;
-      console.log('current intensity =', this.props.intensity);
     }
   }
 
