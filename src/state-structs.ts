@@ -1,6 +1,6 @@
 import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
-import { LASER_SPEED, Direction, MessageActions, PLAYER_MOVE_STEP, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL, MeteoriteSize, MeteoriteColor, SCENE_HEIGHT, CollectableType } from './constants';
+import { LASER_SPEED, Direction, MessageActions, PLAYER_SPEED, Position, SCENE_WIDTH, EnemyColor, EnemyVariant, STARTING_SCORE, STARTING_LIVES, STARTING_LASER_LEVEL, MeteoriteSize, MeteoriteColor, SCENE_HEIGHT, CollectableType } from './constants';
 
 class ObservableState {
 
@@ -86,23 +86,23 @@ export class PlayerState extends GameObjectState {
 	move(direction: Direction, playerWidth: number, playerHeight: number) {
 		switch (direction) {
 			case Direction.LEFT:
-				if (this._position.x - PLAYER_MOVE_STEP >= 0 + playerWidth / 2) {
-					this._position.x -= PLAYER_MOVE_STEP;
+				if (this._position.x - PLAYER_SPEED >= 0 + playerWidth / 2) {
+					this._position.x -= PLAYER_SPEED;
 				}
 				break;
 			case Direction.UP:
-				if (this._position.y - PLAYER_MOVE_STEP >= 0 + playerHeight / 2) {
-					this._position.y -= PLAYER_MOVE_STEP;
+				if (this._position.y - PLAYER_SPEED >= 0 + playerHeight / 2) {
+					this._position.y -= PLAYER_SPEED;
 				}
 				break;
 			case Direction.RIGHT:
-				if (this._position.x + PLAYER_MOVE_STEP <= SCENE_WIDTH - playerWidth / 2) {
-					this._position.x += PLAYER_MOVE_STEP;
+				if (this._position.x + PLAYER_SPEED <= SCENE_WIDTH - playerWidth / 2) {
+					this._position.x += PLAYER_SPEED;
 				}
 				break;
 			case Direction.DOWN:
-				if (this._position.y + PLAYER_MOVE_STEP <= SCENE_HEIGHT - playerHeight / 2) {
-					this._position.y += PLAYER_MOVE_STEP;
+				if (this._position.y + PLAYER_SPEED <= SCENE_HEIGHT - playerHeight / 2) {
+					this._position.y += PLAYER_SPEED;
 				}
 				break;
 			default:

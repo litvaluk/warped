@@ -129,7 +129,7 @@ export class Player extends ECS.Component<PlayerState> {
 
   private _getLeftLaserOriginPosition(playerSprite: ECS.Container): Position {
     let theta = playerSprite.rotation + Math.PI;
-    let Ox = 20;
+    let Ox = 15;
     let Oy = playerSprite.getBounds().height / 1.7;
     return {
       x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
@@ -140,7 +140,7 @@ export class Player extends ECS.Component<PlayerState> {
 
   private _getRightLaserOriginPosition(playerSprite: ECS.Container): Position {
     let theta = playerSprite.rotation + Math.PI;
-    let Ox = -20;
+    let Ox = -15;
     let Oy = playerSprite.getBounds().height / 1.7;
     return {
       x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),

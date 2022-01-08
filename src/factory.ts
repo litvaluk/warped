@@ -83,6 +83,7 @@ export class Factory {
     const playerSprite = new ECS.Sprite(spriteName, playerTexture);
 
     playerSprite.anchor.set(0.5);
+    playerSprite.scale.set(0.8);
     playerSprite.position.x = PLAYER_STARTING_X;
     playerSprite.position.y = PLAYER_STARTING_Y;
     playerSprite.addTag(Tag.PLAYER);
@@ -182,7 +183,7 @@ export class Factory {
   }
 
   private _createGameOverTitle(scene: ECS.Scene) {
-    let gameOverTitle = new ECS.Text('game-over-title', 'Game Over');
+    let gameOverTitle = new ECS.Text('game-over-title', 'Game Over!');
     gameOverTitle.style = TEXT_STYLE_TITLE;
     gameOverTitle.anchor.set(0.5);
     gameOverTitle.position.set(SCENE_WIDTH / 2, SCENE_HEIGHT / 3);
@@ -331,7 +332,7 @@ export class Factory {
     laserSprite.anchor.set(0.5);
     laserSprite.position.set(position.x, position.y)
     laserSprite.rotation = position.angle;
-    laserSprite.scale.set(0.3);
+    laserSprite.scale.set(0.25);
 
     let tag: Tag;
     switch (laserOrigin) {
@@ -356,6 +357,7 @@ export class Factory {
     const enemySprite = new ECS.Sprite(spriteName, enemyTexture);
 
     enemySprite.anchor.set(0.5);
+    enemySprite.scale.set(0.7);
     enemySprite.position.set(position.x, position.y);
     enemySprite.addTag(Tag.ENEMY);
 
@@ -380,6 +382,7 @@ export class Factory {
         meteoriteSprite.scale.set(1.5);
         break
       default:
+        meteoriteSprite.scale.set(1);
         break;
     }
 
@@ -454,7 +457,7 @@ export class Factory {
     const shieldTexture = PIXI.Texture.from('shield').clone();
     const shieldSprite = new ECS.Sprite(spriteName, shieldTexture);
     shieldSprite.anchor.set(0.5);
-    shieldSprite.scale.set(1.25);
+    shieldSprite.scale.set(1);
     shieldSprite.position.set(position.x, position.y);
     scene.stage.addChild(shieldSprite);
   }

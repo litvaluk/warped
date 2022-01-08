@@ -6,7 +6,7 @@ export const SCENE_RESOLUTION = 1;
 
 export const PLAYER_STARTING_X = 1 / 2 * SCENE_WIDTH;
 export const PLAYER_STARTING_Y = 3 / 4 * SCENE_HEIGHT;
-export const PLAYER_MOVE_STEP = 7;
+export const PLAYER_SPEED = 6;
 
 export const PLAYER_IMMORTALITY_DURATION = 3;
 export const PLAYER_IMMORTALITY_FLASHES = 10;
@@ -24,12 +24,12 @@ export const SCORE_FOR_METEOR_SMALL = 1;
 export const SCORE_FOR_METEOR_MEDIUM = 2;
 export const SCORE_FOR_METEOR_LARGE = 3;
 
-export const LASER_SPEED = 10;
+export const LASER_SPEED = 8;
 export const LASER_COOLDOWN = 0.2;
 
-export const ENEMY_SHOOTING_INTENSITY = 60;
+export const ENEMY_SHOOTING_INTENSITY = 50;
 
-export const METEORITE_SPEED = 3;
+export const METEORITE_SPEED = 2.5;
 export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
 
 export const ENEMY_SPAWNER_STARTING_INTESITY = 20;

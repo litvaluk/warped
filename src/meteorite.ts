@@ -100,11 +100,11 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
   private _getExplosionScaleForMeteorite(size: MeteoriteSize): number {
     switch (size) {
       case MeteoriteSize.SMALL:
-        return 0.2;
+        return 0.3;
       case MeteoriteSize.MEDIUM:
-        return 0.5;
+        return 0.45;
       case MeteoriteSize.LARGE:
-        return 1;
+        return 0.75;
       default:
         break;
     }
