@@ -1,5 +1,4 @@
 import * as ECS from '../libs/pixi-ecs';
-import * as PIXISound from '@pixi/sound';
 import { Factory } from './factory';
 
 export class GameLoader {
@@ -7,7 +6,6 @@ export class GameLoader {
   loadGame(engine: ECS.Engine) {
     engine.app.loader
       .reset()
-
       // backgrounds
       .add('background', './assets/images/background/stars1.webp')
       // spaceships
@@ -54,16 +52,11 @@ export class GameLoader {
       .add('explosion', './assets/images/explosion/explosion.webp')
       // shield
       .add('shield', './assets/images/shield/shield.webp')
-
+      // sfx
       .add('laser-sfx', './assets/sounds/laser.mp3')
       .add('explosion-sfx', './assets/sounds/explosion.mp3')
       .add('pickup-sfx', './assets/sounds/pickup.mp3')
-
       .load(() => this.onAssetsLoaded(engine));
-
-    // PIXISound.sound.add('laser-sfx', './assets/sounds/laser.mp3');
-    // PIXISound.sound.add('explosion-sfx', './assets/sounds/explosion.mp3');
-    // PIXISound.sound.add('pickup-sfx', './assets/sounds/pickup.mp3');
   }
 
   private onAssetsLoaded(engine: ECS.Engine) {

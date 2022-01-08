@@ -38,7 +38,7 @@ export class Enemy extends ECS.Component<EnemyState> {
         playerSprite.parent.removeChild(playerSprite);
         let playerComponent = this.scene.stage.findComponentByName('player');
         if (playerComponent) {
-          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
+          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 }, null, false);
           playerComponent.finish();
         }
         Factory.getInstance().createPlayer(this.scene);
@@ -152,7 +152,7 @@ export class Enemy extends ECS.Component<EnemyState> {
     if (enemySprite) {
       enemySprite.parent.removeChild(enemySprite);
     }
-    Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, null, false);
+    Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
   }
 
 }
