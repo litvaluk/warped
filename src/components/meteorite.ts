@@ -1,4 +1,4 @@
-import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteColor, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from '../constants';
+import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteColor, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { CollidableComponent } from './collidable';
 import { GameStatsComponent } from './gameStats';
@@ -37,9 +37,9 @@ export class MeteoriteComponent extends CollidableComponent {
           this._shatterMeteorite();
         }
         if (Math.random() < COLLECTABLE_SPAWN_PERCENTAGE) {
-          GameFactory.getInstance().spawnCollectable(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 }, this._chooseCollectableType());
+          GameFactory.getInstance().spawnCollectable(this.scene, { x: this.owner.x, y: this.owner.y }, this._chooseCollectableType());
         }
-        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 }, this._getExplosionScaleForMeteorite(this.size));
+        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y }, this._getExplosionScaleForMeteorite(this.size));
         this.finish();
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForMeteorite(this.size) });
         return;
@@ -52,7 +52,7 @@ export class MeteoriteComponent extends CollidableComponent {
         playerSprite.parent.removeChild(playerSprite);
         let playerComponent = playerSprite.findComponentByName('player');
         if (playerComponent) {
-          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y, angle: 0 }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y }, null, false);
           playerComponent.finish();
         }
         GameFactory.getInstance().spawnPlayer(this.scene);
@@ -62,17 +62,17 @@ export class MeteoriteComponent extends CollidableComponent {
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 }, this._getExplosionScaleForMeteorite(this.size));
+      GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y }, this._getExplosionScaleForMeteorite(this.size));
       this.finish();
       return;
     }
   }
 
   private _shatterMeteorite() {
-    let shatteredLeftPosition = { x: this.owner.x, y: this.owner.y, angle: this.owner.rotation - METEORITE_SHATTER_ANGLE_CHANGE };
-    let shatteredRightPosition = { x: this.owner.x, y: this.owner.y, angle: this.owner.rotation + METEORITE_SHATTER_ANGLE_CHANGE };
-    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), shatteredLeftPosition);
-    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), shatteredRightPosition);
+    let shatteredLeftPosition: Point = { x: this.owner.x, y: this.owner.y };
+    let shatteredRightPosition: Point = { x: this.owner.x, y: this.owner.y };
+    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredLeftPosition, this.owner.rotation - METEORITE_SHATTER_ANGLE_CHANGE]);
+    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredRightPosition, this.owner.rotation + METEORITE_SHATTER_ANGLE_CHANGE]);
   }
 
   private _getSmallerMeteoriteSize(size: MeteoriteSize): MeteoriteSize {

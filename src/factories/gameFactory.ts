@@ -1,7 +1,7 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LaserOrigin, LASER_SPEED, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
+import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LASER_SPEED, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
 import { PlayerComponent } from '../components/player';
 import { EnemySpawnerComponent } from '../components/spawners/enemySpawner';
 import { MeteoriteSpawnerComponent } from '../components/spawners/meteoriteSpawner';
@@ -52,17 +52,8 @@ export class GameFactory {
       .build();
   }
 
-  spawnLaser(scene: ECS.Scene, color: LaserColor, position: Position, laserOrigin: LaserOrigin, playSound: boolean = true) {
+  spawnLaser(scene: ECS.Scene, color: LaserColor, position: Point, rotation: number, tag: Tag, playSound: boolean = true) {
     const name = `laser-${++this._laserCounter}`;
-    let tag: Tag;
-    switch (laserOrigin) {
-      case (LaserOrigin.PLAYER):
-        tag = Tag.LASER_PLAYER;
-        break;
-      case (LaserOrigin.ENEMY):
-        tag = Tag.LASER_ENEMY
-        break;
-    }
 
     const laser: ECS.Sprite = new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from(`laser-${color}`))
@@ -75,7 +66,7 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    laser.rotation = position.angle;
+    laser.rotation = rotation;
 
     if (PLAY_SOUND && playSound) {
       PIXISound.sound.play('laser-sfx', { volume: VOLUME * 0.2 });
@@ -93,12 +84,12 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    const position = this._getRandomSpawnPoint(enemy);
-    enemy.position.set(position.x, position.y);
+    const positionWithRotation = this._getRandomSpawnPointWithRotation(enemy);
+    enemy.position.set(positionWithRotation[0].x, positionWithRotation[0].y);
     enemy.addComponent(new Enemy(color, variant, ENEMY_SHOOTING_INTENSITY));
   }
 
-  spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, position?: Position) {
+  spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, positionWithRotation: [Point, number]) {
     const name = `meteorite-${++this._meteoriteCounter}`;
     const meteorite: ECS.Sprite = new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from(`meteorite-${color}`))
@@ -109,18 +100,18 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    if (!position) {
-      position = this._getRandomSpawnPoint(meteorite);
+    if (!positionWithRotation) {
+      positionWithRotation = this._getRandomSpawnPointWithRotation(meteorite);
     }
 
-    meteorite.position.set(position.x, position.y);
-    meteorite.rotation = position.angle;
+    meteorite.position.set(positionWithRotation[0].x, positionWithRotation[0].y);
+    meteorite.rotation = positionWithRotation[1];
     meteorite.addComponent(new MeteoriteComponent(size, color));
   }
 
-  spawnCollectable(scene: ECS.Scene, position: Position, type: CollectableType) {
+  spawnCollectable(scene: ECS.Scene, position: Point, type: CollectableType) {
     const name = `collectable-${++this._collectableCounter}`;
-    const collectableTexture: PIXI.Texture = this._getCollectableTexture(type);
+    const collectableTexture: PIXI.Texture = this._getCollectableTextureForType(type);
 
     new ECS.Builder(scene)
       .asSprite(collectableTexture)
@@ -134,7 +125,7 @@ export class GameFactory {
       .build();
   }
 
-  spawnExplosion(scene: ECS.Scene, position: Position, scale?: number, playSound: boolean = true) {
+  spawnExplosion(scene: ECS.Scene, position: Point, scale?: number, playSound: boolean = true) {
     const name = 'explosion';
     const explosion: ECS.AnimatedSprite = new ECS.Builder(scene)
       .asAnimatedSprite(this._createExplosionTextures())
@@ -160,7 +151,7 @@ export class GameFactory {
     }
   }
 
-  spawnShield(scene: ECS.Scene, position: Position) {
+  spawnShield(scene: ECS.Scene, position: Point) {
     const name = 'shield';
     new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from('shield'))
@@ -248,7 +239,7 @@ export class GameFactory {
     }
   }
 
-  private _getCollectableTexture(type: CollectableType): PIXI.Texture {
+  private _getCollectableTextureForType(type: CollectableType): PIXI.Texture {
     switch (type) {
       case CollectableType.LIFE:
         return PIXI.Texture.from('collectable-life');
@@ -270,7 +261,7 @@ export class GameFactory {
     return textures;
   }
 
-  private _getRandomSpawnPoint(container: ECS.Container): Position {
+  private _getRandomSpawnPointWithRotation(container: ECS.Container): [Point, number] {
     const a = SCENE_WIDTH + container.width;
     const b = SCENE_HEIGHT + container.height;
     const perimeter = 2 * a + 2 * b;
@@ -278,34 +269,34 @@ export class GameFactory {
 
     let x: number;
     let y: number;
-    let angle: number;
+    let rotation: number;
 
-    const angleMax = 0.8;
-    const angleMin = 0.2;
+    const rotationMax = 0.8;
+    const rotationMin = 0.2;
 
     if (rand < a) {
       // top
       x = rand;
       y = -container.height / 2;
-      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((0.5 + angleMin) * Math.PI);
+      rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((0.5 + rotationMin) * Math.PI);
     } else if (rand < a + b) {
       // right
       x = SCENE_WIDTH + container.width / 2;
       y = rand - a;
-      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((1 + angleMin) * Math.PI);
+      rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((1 + rotationMin) * Math.PI);
     } else if (rand < 2 * a + b) {
       // bottom
       x = rand - a - b;
       y = SCENE_HEIGHT + container.height / 2;
-      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((1.5 + angleMin) * Math.PI);
+      rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((1.5 + rotationMin) * Math.PI);
     } else {
       // left
       x = -container.width / 2;
       y = rand - 2 * a - b;
-      angle = (Math.random() * Math.PI * (angleMax - angleMin)) + ((-0.5 + angleMin) * Math.PI);
+      rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((-0.5 + rotationMin) * Math.PI);
     }
 
-    return { x: x, y: y, angle: angle };
+    return [{ x: x, y: y }, rotation];
   }
 
 }

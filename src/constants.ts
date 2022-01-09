@@ -102,10 +102,9 @@ export const TEXT_STYLE_HOW_TO_PLAY_TEXT = new PIXI.TextStyle({
   lineHeight: 50
 });
 
-export type Position = {
+export type Point = {
   x: number;
   y: number;
-  angle: number;
 }
 
 export type CollectableOption = {
@@ -179,9 +178,4 @@ export enum CollectableType {
   LIFE = 'life',
   LASER = 'laser',
   SHIELD = 'shield'
-}
-
-export enum LaserOrigin {
-  PLAYER = 'player',
-  ENEMY = 'enemy'
 }

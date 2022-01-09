@@ -1,5 +1,5 @@
 import * as ECS from '../../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, PLAYER_SPEED, Position, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
+import { Direction, LaserColor, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, PLAYER_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
 import { MenuFactory } from '../factories/menuFactory';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
@@ -130,68 +130,63 @@ export class PlayerComponent extends CollidableComponent {
     if (playerSprite) {
       switch (this.laserLevel) {
         case 1:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
           break;
         case 2:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
           break;
         case 3:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
           break;
       }
     }
     this.lastDateShot = new Date();
   }
 
-  private _getCenterLaserOriginPosition(playerSprite: ECS.Container): Position {
+  private _getCenterLaserOriginPosition(): Point {
     return {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2) * playerSprite.getBounds().width / 1.7,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2) * playerSprite.getBounds().height / 1.7,
-      angle: playerSprite.rotation
+      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().width / 1.7,
+      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().height / 1.7
     }
   }
 
-  private _getLeftLaserOriginPosition(playerSprite: ECS.Container): Position {
-    let theta = playerSprite.rotation + Math.PI;
+  private _getLeftLaserOriginPosition(): Point {
+    let theta = this.owner.rotation + Math.PI;
     let Ox = 15;
-    let Oy = playerSprite.getBounds().height / 1.7;
+    let Oy = this.owner.getBounds().height / 1.7;
     return {
-      x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
-      y: playerSprite.y + Ox * Math.sin(theta) + Oy * Math.cos(theta),
-      angle: playerSprite.rotation
+      x: this.owner.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
+      y: this.owner.y + Ox * Math.sin(theta) + Oy * Math.cos(theta)
     }
   }
 
-  private _getRightLaserOriginPosition(playerSprite: ECS.Container): Position {
-    let theta = playerSprite.rotation + Math.PI;
+  private _getRightLaserOriginPosition(): Point {
+    let theta = this.owner.rotation + Math.PI;
     let Ox = -15;
-    let Oy = playerSprite.getBounds().height / 1.7;
+    let Oy = this.owner.getBounds().height / 1.7;
     return {
-      x: playerSprite.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
-      y: playerSprite.y + Ox * Math.sin(theta) + Oy * Math.cos(theta),
-      angle: playerSprite.rotation
+      x: this.owner.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
+      y: this.owner.y + Ox * Math.sin(theta) + Oy * Math.cos(theta)
     }
   }
 
-  private _getLeftSideLaserOriginPosition(playerSprite: ECS.Container): Position {
+  private _getLeftSideLaserOriginPosition(): Point {
     let angle = Math.PI / 6;
     return {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2 - angle) * playerSprite.getBounds().width / 1.7,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2 - angle) * playerSprite.getBounds().height / 1.7,
-      angle: playerSprite.rotation - angle
+      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 - angle) * this.owner.getBounds().width / 1.7,
+      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 - angle) * this.owner.getBounds().height / 1.7
     }
   }
 
-  private _getRightSideLaserOriginPosition(playerSprite: ECS.Container): Position {
+  private _getRightSideLaserOriginPosition(): Point {
     let angle = Math.PI / 6;
     return {
-      x: playerSprite.x + Math.cos(playerSprite.rotation - Math.PI / 2 + angle) * playerSprite.getBounds().width / 1.7,
-      y: playerSprite.y + Math.sin(playerSprite.rotation - Math.PI / 2 + angle) * playerSprite.getBounds().height / 1.7,
-      angle: playerSprite.rotation + angle
+      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 + angle) * this.owner.getBounds().width / 1.7,
+      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 + angle) * this.owner.getBounds().height / 1.7
     }
   }
 
@@ -204,7 +199,7 @@ export class PlayerComponent extends CollidableComponent {
     for (let i = 0; i < lasers.length; i++) {
       if (this.collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
-        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
+        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y });
         this.finish();
         this.sendMessage(MessageActions.REMOVE_LIFE);
         GameFactory.getInstance().spawnPlayer(this.scene);
@@ -224,7 +219,7 @@ export class PlayerComponent extends CollidableComponent {
   private _enableShield() {
     this.lastDateShieldActivated = new Date()
     if (!this.shieldActive) {
-      GameFactory.getInstance().spawnShield(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
+      GameFactory.getInstance().spawnShield(this.scene, { x: this.owner.x, y: this.owner.y });
       this.shieldActive = true;
     }
   }

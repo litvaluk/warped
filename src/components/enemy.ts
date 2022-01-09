@@ -1,5 +1,5 @@
 import { Random } from '../../libs/aph-math';
-import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
+import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, MessageActions, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
 import { getAngleRad } from '../helper';
@@ -53,7 +53,7 @@ export class Enemy extends CollidableComponent {
       if (this.collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.variant) });
-        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
+        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y });
         this.finish();
         return;
       }
@@ -64,14 +64,14 @@ export class Enemy extends CollidableComponent {
       if (gameStatsComponent && !gameStatsComponent.immortal) {
         let playerComponent = playerSprite.findComponentByName('player');
         if (playerComponent) {
-          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y, angle: 0 }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y }, null, false);
           playerComponent.finish();
         }
         GameFactory.getInstance().spawnPlayer(this.scene);
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
+      GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y });
       this.finish();
       return;
     }
@@ -91,12 +91,11 @@ export class Enemy extends CollidableComponent {
   private _shoot() {
     let enemySprite = this.owner;
     if (enemySprite) {
-      const pos: Position = {
+      const pos: Point = {
         x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
-        y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7,
-        angle: enemySprite.rotation
+        y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7
       }
-      GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
+      GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, this.owner.rotation, Tag.LASER_ENEMY);
       this.lastShotDate = this.nextShotDate;
       this.nextShotDate = this._calculateNextShotTime();
     }
