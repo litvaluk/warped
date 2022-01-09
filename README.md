@@ -19,7 +19,7 @@ The game is deployed at [https://warped.lukaslitvan.cz/](https://warped.lukaslit
   - the enemies spawn more based on elapsed time
 
 ## Diagram
-![Diagram](./diagram.webp "Diagram")
+![Diagram](./diagram.png "Diagram")
 
 ## How to run
 - the project is powered by ParcelJS, TypeScript, PixiJS and ECSLite libraries
