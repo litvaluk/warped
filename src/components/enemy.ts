@@ -1,5 +1,5 @@
 import { Random } from '../../libs/aph-math';
-import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, GAME_STATS_COMPONENT_NAME, LaserColor, MessageActions, PLAYER_COMPONENT_NAME, Point, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
+import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SPEED, GAME_STATS_COMPONENT_NAME, LaserColor, MessageActions, PLAYER_COMPONENT_NAME, Point, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
 import { CollidableComponent } from './collidable';

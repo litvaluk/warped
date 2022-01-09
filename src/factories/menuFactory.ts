@@ -1,6 +1,6 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER, HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TITLE, TEXT_STYLE_HOW_TO_PLAY_TEXT } from '../constants';
+import { SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, TEXT_STYLE_TITLE, TEXT_STYLE_MENU_ITEM, TEXT_STYLE_MENU_ITEM_HOVER, HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TITLE, TEXT_STYLE_HOW_TO_PLAY_TEXT } from '../constants';
 import { GameFactory } from './gameFactory';
 
 export class MenuFactory {
@@ -38,7 +38,7 @@ export class MenuFactory {
 
   private _createBackground(scene: ECS.Scene) {
     new ECS.Builder(scene)
-      .asTilingSprite(PIXI.Texture.from('background'), SCENE_WIDTH, SCENE_HEIGHT)
+      .asTilingSprite(PIXI.Texture.from('background'), scene.width, scene.height)
       .withName('background')
       .withParent(scene.stage)
       .build();
@@ -49,7 +49,7 @@ export class MenuFactory {
     new ECS.Builder(scene)
       .asText('Warped', TEXT_STYLE_TITLE)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 6)
+      .localPos(scene.width / 2, scene.height / 6)
       .withName(name)
       .withParent(scene.stage)
       .build();
@@ -62,7 +62,7 @@ export class MenuFactory {
     const startGame: ECS.Text = new ECS.Builder(scene)
       .asText('Start Game', TEXT_STYLE_MENU_ITEM)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.2)
+      .localPos(scene.width / 2, scene.height / 2.2)
       .withName(startGameName)
       .withParent(scene.stage)
       .build();
@@ -81,7 +81,7 @@ export class MenuFactory {
     const howToPlay: ECS.Text = new ECS.Builder(scene)
       .asText('How To Play', TEXT_STYLE_MENU_ITEM)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.2 + startGame.getBounds().height / 2 + offset)
+      .localPos(scene.width / 2, scene.height / 2.2 + startGame.getBounds().height / 2 + offset)
       .withName(howToPlayName)
       .withParent(scene.stage)
       .build();
@@ -103,7 +103,7 @@ export class MenuFactory {
     new ECS.Builder(scene)
       .asText('Game Over!', TEXT_STYLE_TITLE)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 3)
+      .localPos(scene.width / 2, scene.height / 3)
       .withName(name)
       .withParent(scene.stage)
       .build();
@@ -114,7 +114,7 @@ export class MenuFactory {
     new ECS.Builder(scene)
       .asText(`Score: ${score}`, TEXT_STYLE_MENU_ITEM)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 2)
+      .localPos(scene.width / 2, scene.height / 2)
       .withName(name)
       .withParent(scene.stage)
       .build();
@@ -128,7 +128,7 @@ export class MenuFactory {
       .withParent(scene.stage)
       .build();
 
-    backToMenu.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - backToMenu.height);
+    backToMenu.position.set(0 + SCORE_TEXT_OFFSET_X, scene.height + SCORE_TEXT_OFFSET_Y - backToMenu.height);
     backToMenu.interactive = true;
     backToMenu.buttonMode = true;
     backToMenu.on('mouseover', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM_HOVER });
@@ -150,7 +150,7 @@ export class MenuFactory {
       .withParent(scene.stage)
       .build();
 
-    startAgain.position.set(SCENE_WIDTH - SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - startAgain.height);
+    startAgain.position.set(scene.width - SCORE_TEXT_OFFSET_X, scene.height + SCORE_TEXT_OFFSET_Y - startAgain.height);
     startAgain.interactive = true;
     startAgain.buttonMode = true;
     startAgain.on('mouseover', () => { startAgain.style = TEXT_STYLE_MENU_ITEM_HOVER });
@@ -168,7 +168,7 @@ export class MenuFactory {
     new ECS.Builder(scene)
       .asText('How To Play', TEXT_STYLE_HOW_TO_PLAY_TITLE)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 8)
+      .localPos(scene.width / 2, scene.height / 8)
       .withName(name)
       .withParent(scene.stage)
       .build();
@@ -179,7 +179,7 @@ export class MenuFactory {
     new ECS.Builder(scene)
       .asText(HOW_TO_PLAY_TEXT, TEXT_STYLE_HOW_TO_PLAY_TEXT)
       .anchor(0.5)
-      .localPos(SCENE_WIDTH / 2, SCENE_HEIGHT / 2.5)
+      .localPos(scene.width / 2, scene.height / 2.5)
       .withName(name)
       .withParent(scene.stage)
       .build();

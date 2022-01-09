@@ -16,7 +16,7 @@ export const PLAYER_IMMORTALITY_FLASHES = 10;
 
 export const STARTING_SCORE = 0;
 export const STARTING_LIVES = 3;
-export const STARTING_LASER_LEVEL = 3;
+export const STARTING_LASER_LEVEL = 1;
 
 export const DIFFICULTY_INCREASE_INTERVAL = 20;
 export const DIFFICULTY_INCREASE_MULTIPLIER = 1.2;

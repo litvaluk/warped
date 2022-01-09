@@ -1,5 +1,5 @@
 import * as ECS from '../../libs/pixi-ecs';
-import { Direction, GAME_STATS_COMPONENT_NAME, LaserColor, LASER_COOLDOWN, MessageActions, PLAYER_COMPONENT_NAME, PLAYER_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
+import { Direction, GAME_STATS_COMPONENT_NAME, LaserColor, LASER_COOLDOWN, MessageActions, PLAYER_COMPONENT_NAME, PLAYER_SPEED, Point, SHIELD_DURATION, Tag } from '../constants';
 import { MenuFactory } from '../factories/menuFactory';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
@@ -102,12 +102,12 @@ export class PlayerComponent extends CollidableComponent {
         }
         break;
       case Direction.RIGHT:
-        if (this.owner.x + PLAYER_SPEED <= SCENE_WIDTH - this.owner.width / 2) {
+        if (this.owner.x + PLAYER_SPEED <= this.scene.width - this.owner.width / 2) {
           this.owner.x += PLAYER_SPEED;
         }
         break;
       case Direction.DOWN:
-        if (this.owner.y + PLAYER_SPEED <= SCENE_HEIGHT - this.owner.height / 2) {
+        if (this.owner.y + PLAYER_SPEED <= this.scene.height - this.owner.height / 2) {
           this.owner.y += PLAYER_SPEED;
         }
         break;

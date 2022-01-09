@@ -1,7 +1,7 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LASER_SPEED, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
+import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LASER_SPEED, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Point, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
 import { PlayerComponent } from '../components/player';
 import { EnemySpawnerComponent } from '../components/spawners/enemySpawner';
 import { MeteoriteSpawnerComponent } from '../components/spawners/meteoriteSpawner';
@@ -84,7 +84,7 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    const positionWithRotation = this._getRandomSpawnPointWithRotation(enemy);
+    const positionWithRotation = this._getRandomSpawnPointWithRotation(scene, enemy);
     enemy.position.set(positionWithRotation[0].x, positionWithRotation[0].y);
     enemy.addComponent(new Enemy(color, variant, ENEMY_SHOOTING_INTENSITY));
   }
@@ -101,7 +101,7 @@ export class GameFactory {
       .build();
 
     if (!positionWithRotation) {
-      positionWithRotation = this._getRandomSpawnPointWithRotation(meteorite);
+      positionWithRotation = this._getRandomSpawnPointWithRotation(scene, meteorite);
     }
 
     meteorite.position.set(positionWithRotation[0].x, positionWithRotation[0].y);
@@ -174,8 +174,8 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    const x = SCENE_WIDTH + LIFE_OFFSET_X - heart.width / 2 - (order - 1) * heart.width;
-    const y = SCENE_HEIGHT + LIFE_OFFSET_Y - heart.height / 2;
+    const x = scene.width + LIFE_OFFSET_X - heart.width / 2 - (order - 1) * heart.width;
+    const y = scene.height + LIFE_OFFSET_Y - heart.height / 2;
     heart.position.set(x, y);
 
     heart.zIndex = UI_Z_INDEX;
@@ -193,7 +193,7 @@ export class GameFactory {
 
   private _createBackground(scene: ECS.Scene) {
     new ECS.Builder(scene)
-      .asTilingSprite(PIXI.Texture.from('background'), SCENE_WIDTH, SCENE_HEIGHT)
+      .asTilingSprite(PIXI.Texture.from('background'), scene.width, scene.height)
       .withName('background')
       .withParent(scene.stage)
       .build();
@@ -226,7 +226,7 @@ export class GameFactory {
       .withParent(scene.stage)
       .build();
 
-    score.position.set(0 + SCORE_TEXT_OFFSET_X, SCENE_HEIGHT + SCORE_TEXT_OFFSET_Y - score.height);
+    score.position.set(0 + SCORE_TEXT_OFFSET_X, scene.height + SCORE_TEXT_OFFSET_Y - score.height);
     score.zIndex = UI_Z_INDEX;
   }
 
@@ -263,9 +263,9 @@ export class GameFactory {
     return textures;
   }
 
-  private _getRandomSpawnPointWithRotation(container: ECS.Container): [Point, number] {
-    const a = SCENE_WIDTH + container.width;
-    const b = SCENE_HEIGHT + container.height;
+  private _getRandomSpawnPointWithRotation(scene: ECS.Scene, container: ECS.Container): [Point, number] {
+    const a = scene.width + container.width;
+    const b = scene.height + container.height;
     const perimeter = 2 * a + 2 * b;
     const rand = Math.random() * perimeter;
 
@@ -283,13 +283,13 @@ export class GameFactory {
       rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((0.5 + rotationMin) * Math.PI);
     } else if (rand < a + b) {
       // right
-      x = SCENE_WIDTH + container.width / 2;
+      x = scene.width + container.width / 2;
       y = rand - a;
       rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((1 + rotationMin) * Math.PI);
     } else if (rand < 2 * a + b) {
       // bottom
       x = rand - a - b;
-      y = SCENE_HEIGHT + container.height / 2;
+      y = scene.height + container.height / 2;
       rotation = (Math.random() * Math.PI * (rotationMax - rotationMin)) + ((1.5 + rotationMin) * Math.PI);
     } else {
       // left

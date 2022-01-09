@@ -1,4 +1,4 @@
-import { DIFFICULTY_INCREASE_INTERVAL, DIFFICULTY_INCREASE_MULTIPLIER, EnemyColor, EnemyVariant, ENEMY_SPAWNER_STARTING_INTESITY } from '../../constants';
+import { DIFFICULTY_INCREASE_INTERVAL, DIFFICULTY_INCREASE_MULTIPLIER, EnemyColor, EnemyVariant } from '../../constants';
 import { GameFactory } from '../../factories/gameFactory';
 import { AbstractSpawnerComponent } from './abstractSpawner';
 

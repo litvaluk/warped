@@ -1,5 +1,4 @@
 import * as ECS from '../../libs/pixi-ecs';
-import * as PIXI from 'pixi.js';
 import { GAME_STATS_COMPONENT_NAME, MessageActions, PLAYER_COMPONENT_NAME, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, STARTING_LASER_LEVEL, STARTING_LIVES, STARTING_SCORE, Tag } from '../constants';
 import { MenuFactory } from '../factories/menuFactory';
 import { PlayerComponent } from './player';
