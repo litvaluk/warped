@@ -1,9 +1,10 @@
 import * as ECS from '../libs/pixi-ecs';
 import { Direction, LaserColor, LaserOrigin, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Position, SHIELD_DURATION, Tag } from './constants';
-import { Factory } from './factory';
-import { GameStats } from './game-stats';
+import { MenuFactory } from './factories/menuFactory';
+import { GameFactory } from './factories/gameFactory';
+import { GameStats } from './gameStats';
 import { getAngleRad } from './helper';
-import { PlayerState } from './state-structs';
+import { PlayerState } from './stateStructs';
 
 export class Player extends ECS.Component<PlayerState> {
 
@@ -60,7 +61,7 @@ export class Player extends ECS.Component<PlayerState> {
     } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_ESCAPE)) {
       this.scene.callWithDelay(0, () => {
         this.scene.clearScene();
-        Factory.getInstance().loadMenuStage(this.scene);
+        MenuFactory.getInstance().loadMenuStage(this.scene);
       });
     }
   }
@@ -103,17 +104,17 @@ export class Player extends ECS.Component<PlayerState> {
     if (playerSprite) {
       switch (this.props.laserLevel) {
         case 1:
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
           break;
         case 2:
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
           break;
         case 3:
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
-          Factory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
+          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(playerSprite), LaserOrigin.PLAYER, false);
           break;
       }
     }
@@ -177,10 +178,10 @@ export class Player extends ECS.Component<PlayerState> {
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
-        Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+        GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
         this.finish();
         this.sendMessage(MessageActions.REMOVE_LIFE);
-        Factory.getInstance().createPlayer(this.scene);
+        GameFactory.getInstance().spawnPlayer(this.scene);
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         return;
       }
@@ -206,7 +207,7 @@ export class Player extends ECS.Component<PlayerState> {
   private _enableShield() {
     this.props.lastDateShieldActivated = new Date()
     if (!this.props.shieldActive) {
-      Factory.getInstance().spawnShield(this.scene, this.props.position);
+      GameFactory.getInstance().spawnShield(this.scene, this.props.position);
       this.props.shieldActive = true;
     }
   }

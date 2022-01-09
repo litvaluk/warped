@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { LaserState } from './state-structs';
+import { LaserState } from './stateStructs';
 
 export class Laser extends ECS.Component<LaserState> {
 

@@ -1,5 +1,5 @@
 import * as ECS from '../libs/pixi-ecs';
-import { Factory } from './factory';
+import { MenuFactory } from './factories/menuFactory';
 
 export class GameLoader {
 
@@ -60,7 +60,7 @@ export class GameLoader {
   }
 
   private onAssetsLoaded(engine: ECS.Engine) {
-    Factory.getInstance().loadMenuStage(engine.scene);
+    MenuFactory.getInstance().loadMenuStage(engine.scene);
   }
 
 }

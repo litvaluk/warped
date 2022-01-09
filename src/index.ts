@@ -1,6 +1,6 @@
 import * as ECS from '../libs/pixi-ecs';
 import { SCENE_HEIGHT, SCENE_RESOLUTION, SCENE_WIDTH } from './constants';
-import { GameLoader } from './game-loader';
+import { GameLoader } from './gameLoader';
 
 class Warped {
 

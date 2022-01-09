@@ -1,7 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
 import { MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, Position, SCENE_HEIGHT, SCENE_WIDTH } from './constants';
-import { Factory } from './factory';
-import { SpawnerState } from './state-structs';
+import { GameFactory } from './factories/gameFactory';
+import { SpawnerState } from './stateStructs';
 
 export class MeteoriteSpawner extends ECS.Component<SpawnerState> {
 
@@ -12,7 +12,7 @@ export class MeteoriteSpawner extends ECS.Component<SpawnerState> {
 
   onUpdate(): void {
     if (new Date() > this.props.nextSpawnTime) {
-      Factory.getInstance().spawnMeteorite(this.scene, this._getRandomColor(), this._getRandomSize());
+      GameFactory.getInstance().spawnMeteorite(this.scene, this._getRandomColor(), this._getRandomSize());
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }

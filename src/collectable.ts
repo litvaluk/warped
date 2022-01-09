@@ -1,7 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXISound from '@pixi/sound';
 import { CollectableType, MessageActions, PLAY_SOUND, VOLUME } from './constants';
-import { CollectableState } from './state-structs';
+import { CollectableState } from './stateStructs';
 
 export class Collectable extends ECS.Component<CollectableState> {
 

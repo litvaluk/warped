@@ -1,9 +1,10 @@
 import * as ECS from '../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
 import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, Tag } from './constants';
-import { Factory } from './factory';
-import { GameStatsState } from './state-structs';
+import { MenuFactory } from './factories/menuFactory';
+import { GameStatsState } from './stateStructs';
 import { Player } from './player';
+import { GameFactory } from './factories/gameFactory';
 
 export class GameStats extends ECS.Component<GameStatsState> {
 
@@ -29,7 +30,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
       if (this.props.lives === 0) {
         this.scene.callWithDelay(0, () => {
           this.scene.clearScene();
-          Factory.getInstance().loadGameOverStage(this.scene, this.props.score);
+          MenuFactory.getInstance().loadGameOverStage(this.scene, this.props.score);
         });
       }
     } else if (msg.action === MessageActions.ADD_SCORE) {
@@ -46,7 +47,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
 
   private _addLife() {
     this.props.lives += 1;
-    Factory.getInstance().createLifeSprite(this.scene, this.props.lives);
+    GameFactory.getInstance().createLifeSprite(this.scene, this.props.lives);
   }
 
   private _removeLife() {

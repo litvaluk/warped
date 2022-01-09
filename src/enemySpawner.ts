@@ -1,7 +1,7 @@
 import * as ECS from '../libs/pixi-ecs';
-import { DIFFICULTY_INCREASE_INTERVAL, DIFFICULTY_INCREASE_MULTIPLIER, EnemyColor, EnemyVariant, ENEMY_SPAWNER_STARTING_INTESITY, Position, SCENE_HEIGHT, SCENE_WIDTH } from './constants';
-import { Factory } from './factory';
-import { SpawnerState } from './state-structs';
+import { DIFFICULTY_INCREASE_INTERVAL, DIFFICULTY_INCREASE_MULTIPLIER, EnemyColor, EnemyVariant, ENEMY_SPAWNER_STARTING_INTESITY } from './constants';
+import { GameFactory } from './factories/gameFactory';
+import { SpawnerState } from './stateStructs';
 
 export class EnemySpawner extends ECS.Component<SpawnerState> {
 
@@ -16,7 +16,7 @@ export class EnemySpawner extends ECS.Component<SpawnerState> {
   onUpdate(): void {
     const now = new Date();
     if (now > this.props.nextSpawnTime) {
-      Factory.getInstance().spawnEnemy(this.scene, this._getRandomColor(), this._getRandomVariant());
+      GameFactory.getInstance().spawnEnemy(this.scene, this._getRandomColor(), this._getRandomVariant());
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextSpawnTime();
     }

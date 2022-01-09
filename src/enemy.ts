@@ -1,10 +1,10 @@
 import { Random } from '../libs/aph-math';
 import * as ECS from '../libs/pixi-ecs';
 import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
-import { Factory } from './factory';
-import { GameStats } from './game-stats';
+import { GameFactory } from './factories/gameFactory';
+import { GameStats } from './gameStats';
 import { getAngleRad } from './helper';
-import { EnemyState } from './state-structs';
+import { EnemyState } from './stateStructs';
 
 export class Enemy extends ECS.Component<EnemyState> {
 
@@ -48,7 +48,7 @@ export class Enemy extends ECS.Component<EnemyState> {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.props.variant) });
-        Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+        GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
         this.finish();
         return;
       }
@@ -59,14 +59,14 @@ export class Enemy extends ECS.Component<EnemyState> {
       if (gameStatsComponent && !gameStatsComponent.props.immortal) {
         let playerComponent = playerSprite.findComponentByName('player');
         if (playerComponent) {
-          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 }, null, false);
           playerComponent.finish();
         }
-        Factory.getInstance().createPlayer(this.scene);
+        GameFactory.getInstance().spawnPlayer(this.scene);
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+      GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
       this.finish();
       return;
     }
@@ -101,7 +101,7 @@ export class Enemy extends ECS.Component<EnemyState> {
         y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7,
         angle: enemySprite.rotation
       }
-      Factory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
+      GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
       this.props.lastSpawnTime = this.props.nextSpawnTime;
       this.props.nextSpawnTime = this._calculateNextShotTime();
     }

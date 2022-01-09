@@ -5,7 +5,7 @@ export const SCENE_HEIGHT = 1080;
 export const SCENE_RESOLUTION = 1;
 
 export const PLAY_SOUND = true;
-export const VOLUME = 1;
+export const VOLUME = 0.2;
 
 export const PLAYER_STARTING_X = 1 / 2 * SCENE_WIDTH;
 export const PLAYER_STARTING_Y = 3 / 4 * SCENE_HEIGHT;
@@ -33,7 +33,7 @@ export const SCORE_FOR_METEOR_LARGE = 3;
 export const LASER_SPEED = 8;
 export const LASER_COOLDOWN = 0.2;
 
-export const ENEMY_SHOOTING_INTENSITY = 50;
+export const ENEMY_SHOOTING_INTENSITY = 0;
 export const ENEMY_SPEED = 2;
 export const ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY = 15;
 
@@ -43,7 +43,7 @@ export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
 export const ENEMY_SPAWNER_STARTING_INTESITY = 20;
 export const METEORITE_SPAWNER_STARTING_INTESITY = 20;
 
-export const COLLECTABLE_SPAWN_PERCENTAGE = 0.1;
+export const COLLECTABLE_SPAWN_PERCENTAGE = 1;
 export const LIFE_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
 export const LASER_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
 export const SHIELD_COLLECTABLE_SPAWN_PERCENTAGE = 0.33;
