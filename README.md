@@ -8,61 +8,29 @@
 - Actions:
   - moving within the boundaries of the screen
   - shooting and destroying enemies, meteorites
-  - picking up power ups
+  - picking up lives, laser upgrades, shield
 - Rules
-  - the goal is to obtain as much score points as possible by destroying enemies
+  - the goal is to obtain as much score points as possible by destroying enemies/meteorites
   - if player runs out of lives, the game ends
   - player can move with WASD and shoot with left mouse click towards the current mouse position
-  - at the start, player has 3 lives and shoots with basic projectiles
-  - player can sometimes get another life or projectile/weapon upgrades from fallen enemies or destroyed meteorites
-  - the enemies gets progressively stronger and spawn more based on elapsed time
+  - at the start, player has 3 lives and shoots with basic laser
+  - player can sometimes get another life, laser upgrades or a shield for 10 seconds from destroyed meteorites
+  - the enemies spawn more based on elapsed time
 - The main mechanic
   - easy AI behavior - enemies shooting on the player and avoiding collisions
   - particle systems - enemies, meteorites exploding, power up pickups
 
-## How to run this project
+## How to run
 - the project is powered by ParcelJS, TypeScript, PixiJS and ECSLite libraries
 - install [NodeJS](https://nodejs.org/en/download/)
 - execute `npm install`
 - execute `npm run dev`
 - go to `localhost:1234` and find your template there
-- **if you fork this project and rebase it to match the current version, don't forget to run `npm ci` to install new dependencies**
 
 ## Other scripts
 - lint: run `npm run lint` to see if there are linting errors. You can fix them by using `npm run lint -- --fix`
 - compilation test: run `npm run compile-test` to see if there are any TypeScript errors. The default building process provided by ParcelJS doesn't check for syntactic errors. Instead, it just skips them. Yet, you should be able to see them underlined in your IDE
 - deployment: run `npm run deploy` and find your project in the `build` folder
-
-## Project structure
-
-```
-project
-│
-└───assets                  // folder where you should put your game assets
-│   
-└───build                   // output folder for your deployed project
-│
-└───libs                    // libraries and helpers
-│   │   aph-math            // math library with structures you can use
-│   │   pixi-ecs            // ecslite component-oriented library for pixiJS
-│   │   pixi-matter         // bridging components between pixiJS and matterJS
-│
-└───scripts                 // npm scripts
-│   │   fix-links.js        // will fix relative paths in deployed files
-│   │   prebuild-project.js // will copy static assets to the build folder before the main build process
-│   │   utils.js            // various file utilities
-│
-└───src                     // source files of your project
-│   │   my-game.ts          // the main source file that is included in the html file
-│
-└───view                    // folder with HTML content
-│   │   index.html          // file that includes TS file with your game
-│
-│   CHANGELOG.md            // changelog
-│   package.json            // npm scripts and dependencies
-│   README.md               // README file
-│   tsconfig.json           // typescript config (only for pre-build)
-```
 
 ## Libraries
 ### aph-math

@@ -14,7 +14,6 @@
     "pixi.js": "^6.2.1"
   },
   "devDependencies": {
-    "@types/matter-js": "^0.17.5",
     "@types/offscreencanvas": "^2019.6.4",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/eslint-plugin-tslint": "^5.1.0",
