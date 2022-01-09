@@ -1,9 +1,15 @@
-import * as ECS from '../libs/pixi-ecs';
+import * as ECS from '../../libs/pixi-ecs';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, MessageActions, PLAY_SOUND, VOLUME } from './constants';
-import { CollectableState } from './stateStructs';
+import { CollectableType, MessageActions, PLAY_SOUND, VOLUME } from '../constants';
 
-export class Collectable extends ECS.Component<CollectableState> {
+export class CollectableComponent extends ECS.Component {
+
+  type: CollectableType;
+
+  constructor(type: CollectableType) {
+    super();
+    this.type = type;
+  }
 
   onUpdate(): void {
     this._checkPlayerCollision();
@@ -12,7 +18,7 @@ export class Collectable extends ECS.Component<CollectableState> {
   private _checkPlayerCollision() {
     let playerSprite = this.scene.findObjectByName('player');
     if (playerSprite && this._collidesWith(playerSprite)) {
-      switch (this.props.type) {
+      switch (this.type) {
         case CollectableType.LIFE:
           this.sendMessage(MessageActions.ADD_LIFE);
           break;
@@ -31,7 +37,7 @@ export class Collectable extends ECS.Component<CollectableState> {
   }
 
   private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.scene.findObjectByName(this.props.spriteName).getBounds();
+    let ownBounds = this.owner.getBounds();
     let otherBounds = other.getBounds();
     return ownBounds.x + ownBounds.width > otherBounds.x &&
       ownBounds.x < otherBounds.x + otherBounds.width &&
@@ -40,8 +46,8 @@ export class Collectable extends ECS.Component<CollectableState> {
   }
 
   onRemove(): void {
-    let collectableSprite = this.scene.findObjectByName(this.props.spriteName);
-    if (collectableSprite) {
+    let collectableSprite = this.owner;
+    if (collectableSprite && collectableSprite.parent) {
       collectableSprite.parent.removeChild(collectableSprite);
     }
   }

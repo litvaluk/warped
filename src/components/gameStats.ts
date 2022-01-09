@@ -1,12 +1,16 @@
-import * as ECS from '../libs/pixi-ecs';
+import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, Tag } from './constants';
-import { MenuFactory } from './factories/menuFactory';
-import { GameStatsState } from './stateStructs';
-import { Player } from './player';
-import { GameFactory } from './factories/gameFactory';
+import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, STARTING_LASER_LEVEL, STARTING_LIVES, STARTING_SCORE, Tag } from '../constants';
+import { MenuFactory } from '../factories/menuFactory';
+import { PlayerComponent } from './player';
+import { GameFactory } from '../factories/gameFactory';
 
-export class GameStats extends ECS.Component<GameStatsState> {
+export class GameStatsComponent extends ECS.Component {
+
+  score = STARTING_SCORE;
+  lives = STARTING_LIVES;
+  laserLevel = STARTING_LASER_LEVEL;
+  immortal = false;
 
   onInit(): void {
     super.onInit();
@@ -20,17 +24,17 @@ export class GameStats extends ECS.Component<GameStatsState> {
 
   onMessage(msg: ECS.Message) {
     if (msg.action === MessageActions.ADD_LIFE) {
-      if (this.props.lives < 5) {
+      if (this.lives < 5) {
         this._addLife();
       }
     } else if (msg.action === MessageActions.REMOVE_LIFE) {
-      if (this.props.lives > 0) {
+      if (this.lives > 0) {
         this._removeLife();
       }
-      if (this.props.lives === 0) {
+      if (this.lives === 0) {
         this.scene.callWithDelay(0, () => {
           this.scene.clearScene();
-          MenuFactory.getInstance().loadGameOverStage(this.scene, this.props.score);
+          MenuFactory.getInstance().loadGameOverStage(this.scene, this.score);
         });
       }
     } else if (msg.action === MessageActions.ADD_SCORE) {
@@ -46,26 +50,26 @@ export class GameStats extends ECS.Component<GameStatsState> {
   }
 
   private _addLife() {
-    this.props.lives += 1;
-    GameFactory.getInstance().createLifeSprite(this.scene, this.props.lives);
+    this.lives += 1;
+    GameFactory.getInstance().createLifeSprite(this.scene, this.lives);
   }
 
   private _removeLife() {
-    const life = this.scene.findObjectByName(`life-${this.props.lives}`);
+    const life = this.scene.findObjectByName(`life-${this.lives}`);
     life.parent.removeChild(life);
-    this.props.lives -= 1;
+    this.lives -= 1;
   }
 
   private _addScore(toAdd: number) {
-    this.props.score += toAdd;
+    this.score += toAdd;
     let scoreText = this.scene.stage.getChildByName('score-text') as PIXI.Text;
-    scoreText.text = `${this.props.score}`;
+    scoreText.text = `${this.score}`;
   }
 
   private _startImmortality(shield: boolean) {
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
-      this.props.immortal = true;
+      this.immortal = true;
       if (!shield) {
         this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
           .beginRepeat(PLAYER_IMMORTALITY_FLASHES)
@@ -75,10 +79,10 @@ export class GameStats extends ECS.Component<GameStatsState> {
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
           .endRepeat()
           .call(() => {
-            let playerComponent = playerSprite.findComponentByName('player') as Player;
-            if (playerComponent && !playerComponent.props.shieldActive) {
+            let playerComponent = playerSprite.findComponentByName('player') as PlayerComponent;
+            if (playerComponent && !playerComponent.shieldActive) {
               this.sendMessage(MessageActions.IMMORTALITY_OFF)
-              this.props.immortal = false;
+              this.immortal = false;
             }
           })
         );
@@ -87,7 +91,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
           .waitTime(1000 * SHIELD_DURATION)
           .call(() => {
             this.sendMessage(MessageActions.IMMORTALITY_OFF)
-            this.props.immortal = false;
+            this.immortal = false;
           })
         );
       }

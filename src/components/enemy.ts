@@ -1,34 +1,45 @@
-import { Random } from '../libs/aph-math';
-import * as ECS from '../libs/pixi-ecs';
-import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from './constants';
-import { GameFactory } from './factories/gameFactory';
-import { GameStats } from './gameStats';
-import { getAngleRad } from './helper';
-import { EnemyState } from './stateStructs';
+import { Random } from '../../libs/aph-math';
+import * as ECS from '../../libs/pixi-ecs';
+import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
+import { GameFactory } from '../factories/gameFactory';
+import { GameStatsComponent } from './gameStats';
+import { getAngleRad } from '../helper';
 
-export class Enemy extends ECS.Component<EnemyState> {
+export class Enemy extends ECS.Component {
 
-  private _random = new Random(Date.now());
-  private _nextDirectionChangeDate: Date;
-  private _direction: number;
+  color: EnemyColor;
+  variant: EnemyVariant;
+  shootingIntensity: number;
+  random = new Random(Date.now());
+  lastShotDate: Date;
+  nextShotDate: Date;
+  nextDirectionChangeDate: Date;
+  direction: number;
+
+  constructor(color: EnemyColor, variant: EnemyVariant, shootingIntensity: number) {
+    super();
+    this.color = color;
+    this.variant = variant;
+    this.shootingIntensity = shootingIntensity;
+    this.nextShotDate = this._calculateNextShotTime();
+    this.nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
+  }
 
   onInit(): void {
-    this.props.intensity = ENEMY_SHOOTING_INTENSITY;
-    this.props.nextSpawnTime = this._calculateNextShotTime();
-    this._nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
+    super.onInit();
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
-      this._direction = getAngleRad(this.props.position.x, this.props.position.y, playerSprite.x, playerSprite.y);
+      this.direction = getAngleRad(this.owner.x, this.owner.y, playerSprite.x, playerSprite.y);
     }
   }
 
   onUpdate() {
-    if (new Date() > this.props.nextSpawnTime) {
+    if (new Date() > this.nextShotDate) {
       this._shoot();
     }
-    if (new Date() > this._nextDirectionChangeDate) {
-      this._nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
-      this._direction = Math.random() * 2 * Math.PI;
+    if (new Date() > this.nextDirectionChangeDate) {
+      this.nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
+      this.direction = Math.random() * 2 * Math.PI;
     }
     this._updateAngle();
     this._move();
@@ -36,10 +47,10 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _isOutOfScreen(container: ECS.Container): boolean {
-    return this.props.position.x > SCENE_WIDTH + container.width ||
-      this.props.position.x < 0 - container.width ||
-      this.props.position.y > SCENE_HEIGHT + container.height ||
-      this.props.position.y < 0 - container.height;
+    return this.owner.x > SCENE_WIDTH + container.width ||
+      this.owner.x < 0 - container.width ||
+      this.owner.y > SCENE_HEIGHT + container.height ||
+      this.owner.y < 0 - container.height;
   }
 
   private _checkCollisions() {
@@ -47,30 +58,30 @@ export class Enemy extends ECS.Component<EnemyState> {
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
-        this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.props.variant) });
-        GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+        this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.variant) });
+        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
         this.finish();
         return;
       }
     }
     let playerSprite = this.scene.findObjectByName('player');
     if (playerSprite && this._collidesWith(playerSprite)) {
-      let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
-      if (gameStatsComponent && !gameStatsComponent.props.immortal) {
+      let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
+      if (gameStatsComponent && !gameStatsComponent.immortal) {
         let playerComponent = playerSprite.findComponentByName('player');
         if (playerComponent) {
-          GameFactory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y, angle: 0 }, null, false);
           playerComponent.finish();
         }
         GameFactory.getInstance().spawnPlayer(this.scene);
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+      GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
       this.finish();
       return;
     }
-    const enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    const enemySprite = this.owner;
     if (enemySprite && this._isOutOfScreen(enemySprite)) {
       this.finish();
       return;
@@ -78,7 +89,7 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.scene.findObjectByName(this.props.spriteName).getBounds();
+    let ownBounds = this.owner.getBounds();
     let otherBounds = other.getBounds();
     return ownBounds.x + ownBounds.width > otherBounds.x &&
       ownBounds.x < otherBounds.x + otherBounds.width &&
@@ -94,7 +105,7 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _shoot() {
-    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    let enemySprite = this.owner;
     if (enemySprite) {
       const pos: Position = {
         x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
@@ -102,34 +113,32 @@ export class Enemy extends ECS.Component<EnemyState> {
         angle: enemySprite.rotation
       }
       GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, LaserOrigin.ENEMY);
-      this.props.lastSpawnTime = this.props.nextSpawnTime;
-      this.props.nextSpawnTime = this._calculateNextShotTime();
+      this.lastShotDate = this.nextShotDate;
+      this.nextShotDate = this._calculateNextShotTime();
     }
   }
 
   private _updateAngle() {
-    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (enemySprite && playerSprite) {
-      enemySprite.rotation = getAngleRad(this.props.position.x, this.props.position.y, playerSprite.x, playerSprite.y);
-      this.props.position.angle = enemySprite.rotation;
+    if (playerSprite) {
+      this.owner.rotation = getAngleRad(this.owner.x, this.owner.y, playerSprite.x, playerSprite.y);
     }
   }
 
   private _move() {
-    const deltaX = ENEMY_SPEED * Math.cos(this._direction - Math.PI / 2);
-    const deltaY = ENEMY_SPEED * Math.sin(this._direction - Math.PI / 2);
-    const newX = this.props.position.x + deltaX;
-    const newY = this.props.position.y + deltaY;
+    const deltaX = ENEMY_SPEED * Math.cos(this.direction - Math.PI / 2);
+    const deltaY = ENEMY_SPEED * Math.sin(this.direction - Math.PI / 2);
+    const newX = this.owner.x + deltaX;
+    const newY = this.owner.y + deltaY;
 
-    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
+    let enemySprite = this.owner;
     if (enemySprite) {
       enemySprite.x = newX;
       enemySprite.y = newY;
     }
 
-    this.props.position.x = newX;
-    this.props.position.y = newY;
+    this.owner.x = newX;
+    this.owner.y = newY;
   }
 
   private _getScoreForEnemy(variant: EnemyVariant): number {
@@ -148,7 +157,7 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _getLaserColorForEnemy(): LaserColor {
-    switch (this.props.color) {
+    switch (this.color) {
       case EnemyColor.RED:
         return LaserColor.RED;
       case EnemyColor.PURPLE:
@@ -165,8 +174,8 @@ export class Enemy extends ECS.Component<EnemyState> {
   }
 
   private _calculateNextShotTime(): Date {
-    let idealInterval = 60000 / this.props.intensity;
-    let actualInterval = this.props.random.uniform(idealInterval * 0.2, idealInterval * 1.8);
+    let idealInterval = 60000 / this.shootingIntensity;
+    let actualInterval = this.random.uniform(idealInterval * 0.2, idealInterval * 1.8);
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
     return date;
@@ -174,7 +183,7 @@ export class Enemy extends ECS.Component<EnemyState> {
 
   private _calculateNextDirectionChangeDate(): Date {
     let idealInterval = 60000 / ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY;
-    let actualInterval = this._random.normal(idealInterval * 0.5, idealInterval * 1.5);
+    let actualInterval = this.random.normal(idealInterval * 0.5, idealInterval * 1.5);
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
     return date;
@@ -184,8 +193,8 @@ export class Enemy extends ECS.Component<EnemyState> {
     if (!this.scene) {
       return;
     }
-    let enemySprite = this.scene.findObjectByName(this.props.spriteName);
-    if (enemySprite) {
+    let enemySprite = this.owner;
+    if (enemySprite && enemySprite.parent) {
       enemySprite.parent.removeChild(enemySprite);
     }
   }

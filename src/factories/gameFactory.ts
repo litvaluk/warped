@@ -1,16 +1,15 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, EnemyColor, EnemyVariant, LaserColor, LaserOrigin, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
-import { Player } from '../player';
-import { CollectableState, EnemyState, GameStatsState, LaserState, MeteoriteState, PlayerState, SpawnerState } from '../stateStructs';
-import { EnemySpawner } from '../enemySpawner';
-import { MeteoriteSpawner } from '../meteoriteSpawner';
-import { GameStats } from '../gameStats';
-import { Laser } from '../laser';
-import { Collectable } from '../collectable';
-import { Meteorite } from '../meteorite';
-import { Enemy } from '../enemy';
+import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LaserOrigin, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
+import { PlayerComponent } from '../components/player';
+import { EnemySpawnerComponent } from '../components/spawners/enemySpawner';
+import { MeteoriteSpawnerComponent } from '../components/spawners/meteoriteSpawner';
+import { GameStatsComponent } from '../components/gameStats';
+import { LaserComponent } from '../components/laser';
+import { CollectableComponent } from '../components/collectable';
+import { MeteoriteComponent } from '../components/meteorite';
+import { Enemy } from '../components/enemy';
 
 export class GameFactory {
 
@@ -48,7 +47,7 @@ export class GameFactory {
       .localPos(PLAYER_STARTING_X, PLAYER_STARTING_Y)
       .withName('player')
       .withTag(Tag.PLAYER)
-      .withComponent(new Player(new PlayerState(scene, { x: PLAYER_STARTING_X, y: PLAYER_STARTING_Y, angle: 0 }, 'player')))
+      .withComponent(new PlayerComponent(STARTING_LASER_LEVEL))
       .withParent(scene.stage)
       .build();
   }
@@ -72,7 +71,7 @@ export class GameFactory {
       .localPos(position.x, position.y)
       .withName(name)
       .withTag(tag)
-      .withComponent(new Laser(new LaserState(scene, position, tag, name)))
+      .withComponent(new LaserComponent())
       .withParent(scene.stage)
       .build();
 
@@ -96,7 +95,7 @@ export class GameFactory {
 
     const position = this._getRandomSpawnPoint(enemy);
     enemy.position.set(position.x, position.y);
-    enemy.addComponent(new Enemy(new EnemyState(scene, position, Tag.ENEMY, color, variant, name)));
+    enemy.addComponent(new Enemy(color, variant, ENEMY_SHOOTING_INTENSITY));
   }
 
   spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, position?: Position) {
@@ -116,7 +115,7 @@ export class GameFactory {
 
     meteorite.position.set(position.x, position.y);
     meteorite.rotation = position.angle;
-    meteorite.addComponent(new Meteorite(new MeteoriteState(scene, position, Tag.ENEMY, color, size, name)))
+    meteorite.addComponent(new MeteoriteComponent(size, color));
   }
 
   spawnCollectable(scene: ECS.Scene, position: Position, type: CollectableType) {
@@ -130,7 +129,7 @@ export class GameFactory {
       .localPos(position.x, position.y)
       .withName(name)
       .withTag(Tag.COLLECTABLE)
-      .withComponent(new Collectable(new CollectableState(scene, position, Tag.COLLECTABLE, type, name)))
+      .withComponent(new CollectableComponent(type))
       .withParent(scene.stage)
       .build();
   }
@@ -209,15 +208,15 @@ export class GameFactory {
   }
 
   private _createEnemySpawner(scene: ECS.Scene) {
-    scene.stage.addComponent(new EnemySpawner(new SpawnerState));
+    scene.stage.addComponent(new EnemySpawnerComponent(ENEMY_SPAWNER_STARTING_INTESITY));
   }
 
   private _createMeteoriteSpawner(scene: ECS.Scene) {
-    scene.stage.addComponent(new MeteoriteSpawner(new SpawnerState));
+    scene.stage.addComponent(new MeteoriteSpawnerComponent(METEORITE_SPAWNER_STARTING_INTESITY));
   }
 
   private _createGameStats(scene: ECS.Scene) {
-    scene.stage.addComponent(new GameStats(new GameStatsState));
+    scene.stage.addComponent(new GameStatsComponent());
   }
 
   private _createPlayerLives(scene: ECS.Scene) {

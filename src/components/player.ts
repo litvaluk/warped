@@ -1,15 +1,26 @@
-import * as ECS from '../libs/pixi-ecs';
-import { Direction, LaserColor, LaserOrigin, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, Position, SHIELD_DURATION, Tag } from './constants';
-import { MenuFactory } from './factories/menuFactory';
-import { GameFactory } from './factories/gameFactory';
-import { GameStats } from './gameStats';
-import { getAngleRad } from './helper';
-import { PlayerState } from './stateStructs';
+import * as ECS from '../../libs/pixi-ecs';
+import { Direction, LaserColor, LaserOrigin, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, PLAYER_SPEED, Position, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
+import { MenuFactory } from '../factories/menuFactory';
+import { GameFactory } from '../factories/gameFactory';
+import { GameStatsComponent } from './gameStats';
+import { getAngleRad } from '../helper';
 
-export class Player extends ECS.Component<PlayerState> {
+export class PlayerComponent extends ECS.Component {
+
+  shieldActive: boolean;
+  lastDateShieldActivated: Date;
+  laserLevel: number;
+  lastDateShot: Date;
 
   private _keyInputCmp: ECS.KeyInputComponent;
-  private _leftMouseButtonPressed = false;
+  private _leftMouseButtonPressed;
+
+  constructor(laserLevel: number) {
+    super();
+    this.shieldActive = false;
+    this.laserLevel = laserLevel;
+    this._leftMouseButtonPressed = false;
+  }
 
   onInit() {
     super.onInit();
@@ -37,14 +48,13 @@ export class Player extends ECS.Component<PlayerState> {
     } else if (msg.action === ECS.PointerMessages.POINTER_RELEASE) {
       this._leftMouseButtonPressed = false;
     } else if (msg.action === ECS.PointerMessages.POINTER_OVER) {
-      let pos = msg.data.mousePos;
-      let angle = getAngleRad(this.props.position.x, this.props.position.y, pos.posX, pos.posY);
+      let angle = getAngleRad(this.owner.x, this.owner.y, msg.data.mousePos.posX, msg.data.mousePos.posY);
       this._updateAngle(angle);
     } else if (msg.action === MessageActions.SHIELD_ON) {
       this._enableShield();
     } else if (msg.action === MessageActions.INCREASE_LASER_LEVEL) {
-      if (this.props.laserLevel < 3) {
-        this.props.laserLevel += 1;
+      if (this.laserLevel < 3) {
+        this.laserLevel += 1;
       }
     }
   }
@@ -67,13 +77,13 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _updateShield() {
-    if (this.props.shieldActive) {
+    if (this.shieldActive) {
       let shieldSprite = this.scene.findObjectByName('shield');
       if (shieldSprite) {
-        shieldSprite.position.set(this.props.position.x, this.props.position.y);
-        if (new Date().getTime() - this.props.lastDateShieldActivated.getTime() > 1000 * SHIELD_DURATION) {
+        shieldSprite.position.set(this.owner.x, this.owner.y);
+        if (new Date().getTime() - this.lastDateShieldActivated.getTime() > 1000 * SHIELD_DURATION) {
           shieldSprite.parent.removeChild(shieldSprite);
-          this.props.shieldActive = false;
+          this.shieldActive = false;
           this.sendMessage(MessageActions.SHIELD_OFF);
         }
       }
@@ -81,28 +91,43 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _updateAngle(angle: number) {
-    this.props.updateAngle(angle);
-    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (playerSprite) {
-      playerSprite.rotation = angle;
-    }
+    this.owner.rotation = angle;
   }
 
   private _move(direction: Direction) {
-    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (playerSprite) {
-      this.props.move(direction, playerSprite.getBounds().width, playerSprite.getBounds().height);
-      playerSprite.position.set(this.props.position.x, this.props.position.y);
+    switch (direction) {
+      case Direction.LEFT:
+        if (this.owner.x - PLAYER_SPEED >= 0 + this.owner.width / 2) {
+          this.owner.x -= PLAYER_SPEED;
+        }
+        break;
+      case Direction.UP:
+        if (this.owner.y - PLAYER_SPEED >= 0 + this.owner.height / 2) {
+          this.owner.y -= PLAYER_SPEED;
+        }
+        break;
+      case Direction.RIGHT:
+        if (this.owner.x + PLAYER_SPEED <= SCENE_WIDTH - this.owner.width / 2) {
+          this.owner.x += PLAYER_SPEED;
+        }
+        break;
+      case Direction.DOWN:
+        if (this.owner.y + PLAYER_SPEED <= SCENE_HEIGHT - this.owner.height / 2) {
+          this.owner.y += PLAYER_SPEED;
+        }
+        break;
+      default:
+        break;
     }
   }
 
   private _shoot() {
-    if (this.props.lastDateShot && new Date().getTime() - this.props.lastDateShot.getTime() < 1000 * LASER_COOLDOWN) {
+    if (this.lastDateShot && new Date().getTime() - this.lastDateShot.getTime() < 1000 * LASER_COOLDOWN) {
       return;
     }
-    let playerSprite = this.scene.findObjectByName(this.props.spriteName);
+    let playerSprite = this.owner
     if (playerSprite) {
-      switch (this.props.laserLevel) {
+      switch (this.laserLevel) {
         case 1:
           GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(playerSprite), LaserOrigin.PLAYER);
           break;
@@ -118,7 +143,7 @@ export class Player extends ECS.Component<PlayerState> {
           break;
       }
     }
-    this.props.lastDateShot = new Date();
+    this.lastDateShot = new Date();
   }
 
   private _getCenterLaserOriginPosition(playerSprite: ECS.Container): Position {
@@ -170,15 +195,15 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _checkCollisions() {
-    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
-    if (gameStatsComponent && gameStatsComponent.props.immortal) {
+    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
+    if (gameStatsComponent && gameStatsComponent.immortal) {
       return;
     }
     let lasers = this.scene.findObjectsByTag(Tag.LASER_ENEMY);
     for (let i = 0; i < lasers.length; i++) {
       if (this._collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
-        GameFactory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 });
+        GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
         this.finish();
         this.sendMessage(MessageActions.REMOVE_LIFE);
         GameFactory.getInstance().spawnPlayer(this.scene);
@@ -189,7 +214,7 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.scene.findObjectByName(this.props.spriteName).getBounds();
+    let ownBounds = this.owner.getBounds();
     let otherBounds = other.getBounds();
     return ownBounds.x + ownBounds.width > otherBounds.x &&
       ownBounds.x < otherBounds.x + otherBounds.width &&
@@ -205,10 +230,10 @@ export class Player extends ECS.Component<PlayerState> {
   }
 
   private _enableShield() {
-    this.props.lastDateShieldActivated = new Date()
-    if (!this.props.shieldActive) {
-      GameFactory.getInstance().spawnShield(this.scene, this.props.position);
-      this.props.shieldActive = true;
+    this.lastDateShieldActivated = new Date()
+    if (!this.shieldActive) {
+      GameFactory.getInstance().spawnShield(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
+      this.shieldActive = true;
     }
   }
 
@@ -216,12 +241,12 @@ export class Player extends ECS.Component<PlayerState> {
     if (!this.scene) {
       return;
     }
-    let playerSprite = this.scene.findObjectByName(this.props.spriteName);
-    if (playerSprite) {
+    let playerSprite = this.owner;
+    if (playerSprite && playerSprite.parent) {
       playerSprite.parent.removeChild(playerSprite);
     }
     let shieldSprite = this.scene.findObjectByName('shield');
-    if (shieldSprite) {
+    if (shieldSprite && shieldSprite.parent) {
       shieldSprite.parent.removeChild(shieldSprite);
       this.sendMessage(MessageActions.SHIELD_OFF);
     }
