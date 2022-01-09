@@ -24,6 +24,12 @@ export class MeteoriteComponent extends CollidableComponent {
     this._checkCollisions();
   }
 
+  onRemove(): void {
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
+    }
+  }
+
   private _updatePosition(): void {
     this.owner.x += Math.cos(this.owner.rotation - Math.PI / 2) * METEORITE_SPEED;
     this.owner.y += Math.sin(this.owner.rotation - Math.PI / 2) * METEORITE_SPEED;
@@ -126,7 +132,7 @@ export class MeteoriteComponent extends CollidableComponent {
 
     let splitPoints: number[] = [0];
     for (let i = 0; i < collectables.length; i++) {
-      splitPoints.push(splitPoints[i] + collectables[i].percentage)
+      splitPoints.push(splitPoints[i] + collectables[i].percentage);
     }
 
     let cut = Math.random() * splitPoints[splitPoints.length - 1];
@@ -138,12 +144,6 @@ export class MeteoriteComponent extends CollidableComponent {
     }
 
     return null;
-  }
-
-  onRemove(): void {
-    if (this.owner && this.owner.parent) {
-      this.owner.parent.removeChild(this.owner);
-    }
   }
 
 }

@@ -14,19 +14,19 @@ export class LaserComponent extends CollidableComponent {
     this._updatePosition();
     if (this.isOutOfScreen()) {
       this.finish();
-      return
+      return;
     }
-  }
-
-  private _updatePosition(): void {
-    this.owner.x += Math.cos(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
-    this.owner.y += Math.sin(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
   }
 
   onRemove(): void {
     if (this.owner && this.owner.parent) {
       this.owner.parent.removeChild(this.owner);
     }
+  }
+
+  private _updatePosition(): void {
+    this.owner.x += Math.cos(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
+    this.owner.y += Math.sin(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
   }
 
 }

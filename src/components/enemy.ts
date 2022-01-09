@@ -46,6 +46,12 @@ export class Enemy extends CollidableComponent {
     this._checkCollisions();
   }
 
+  onRemove() {
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
+    }
+  }
+
   private _checkCollisions() {
     let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
@@ -93,7 +99,7 @@ export class Enemy extends CollidableComponent {
     const newlaserPosition: Point = {
       x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().width / 1.7,
       y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().height / 1.7
-    }
+    };
     GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), newlaserPosition, this.owner.rotation, Tag.LASER_ENEMY);
     this.nextShotDate = this._calculateNextShotDate();
   }
@@ -154,12 +160,6 @@ export class Enemy extends CollidableComponent {
     let date = new Date();
     date.setMilliseconds(date.getMilliseconds() + actualInterval);
     return date;
-  }
-
-  onRemove() {
-    if (this.owner && this.owner.parent) {
-      this.owner.parent.removeChild(this.owner);
-    }
   }
 
 }

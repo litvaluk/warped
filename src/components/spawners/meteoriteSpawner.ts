@@ -10,12 +10,12 @@ export class MeteoriteSpawnerComponent extends AbstractSpawnerComponent {
 
   private _getRandomColor(): MeteoriteColor {
     let colors = [MeteoriteColor.WHITE, MeteoriteColor.GRAY];
-    return colors[Math.floor(Math.random() * colors.length)]
+    return colors[Math.floor(Math.random() * colors.length)];
   }
 
   private _getRandomSize(): MeteoriteSize {
     let sizes = [MeteoriteSize.SMALL, MeteoriteSize.MEDIUM, MeteoriteSize.LARGE];
-    return sizes[Math.floor(Math.random() * sizes.length)]
+    return sizes[Math.floor(Math.random() * sizes.length)];
   }
 
 }

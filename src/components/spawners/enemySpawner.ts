@@ -26,12 +26,12 @@ export class EnemySpawnerComponent extends AbstractSpawnerComponent {
 
   private _getRandomColor(): EnemyColor {
     let colors = [EnemyColor.RED, EnemyColor.PURPLE, EnemyColor.GREEN, EnemyColor.ORANGE, EnemyColor.YELLOW];
-    return colors[Math.floor(Math.random() * colors.length)]
+    return colors[Math.floor(Math.random() * colors.length)];
   }
 
   private _getRandomVariant(): EnemyVariant {
     let variants = [EnemyVariant.SMALL, EnemyVariant.MEDIUM, EnemyVariant.LARGE, EnemyVariant.HUGE];
-    return variants[Math.floor(Math.random() * variants.length)]
+    return variants[Math.floor(Math.random() * variants.length)];
   }
 
 }

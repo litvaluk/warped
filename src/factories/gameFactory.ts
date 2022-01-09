@@ -112,7 +112,6 @@ export class GameFactory {
   spawnCollectable(scene: ECS.Scene, position: Point, type: CollectableType) {
     const name = `collectable-${++this._collectableCounter}`;
     const collectableTexture: PIXI.Texture = this._getCollectableTextureForType(type);
-
     new ECS.Builder(scene)
       .asSprite(collectableTexture)
       .anchor(0.5)
@@ -233,7 +232,7 @@ export class GameFactory {
   private _getMeteoriteScaleFromSize(size: MeteoriteSize) {
     switch (size) {
       case MeteoriteSize.SMALL:
-        return 0.5
+        return 0.5;
       case MeteoriteSize.LARGE:
         return 1.5;
       default:

@@ -65,7 +65,7 @@ Try to get as much score as you can by destroying enemy spaceships and meteorite
 You start with 3 lives. Everytime you get hit or you collide with an enemy spaceship or meteorite,
 you lose a life and your laser upgrades are reset. If you run out of lives, your game is over!
 You can collect three types of upgrades from destroyed meteorites.
-`
+`;
 
 export const TEXT_STYLE_SCORE = new PIXI.TextStyle({
   fontFamily: 'Aldrich',
@@ -108,11 +108,6 @@ export const TEXT_STYLE_HOW_TO_PLAY_TEXT = new PIXI.TextStyle({
 export type Point = {
   x: number;
   y: number;
-}
-
-export type CollectableOption = {
-  type: CollectableType;
-  percentage: number;
 }
 
 export enum Direction {
@@ -183,4 +178,9 @@ export enum CollectableType {
   LIFE = 'life',
   LASER = 'laser',
   SHIELD = 'shield'
+}
+
+export type CollectableOption = {
+  type: CollectableType;
+  percentage: number;
 }

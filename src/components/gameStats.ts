@@ -79,15 +79,15 @@ export class GameStatsComponent extends ECS.Component {
       if (!shield) {
         this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
           .beginRepeat(PLAYER_IMMORTALITY_FLASHES)
-          .call(() => { player.alpha = 0.3 })
+          .call(() => { player.alpha = 0.3; })
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
-          .call(() => { player.alpha = 1 })
+          .call(() => { player.alpha = 1; })
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
           .endRepeat()
           .call(() => {
             let playerComponent = player.findComponentByName<PlayerComponent>(PLAYER_COMPONENT_NAME);
             if (playerComponent && !playerComponent.shieldActive) {
-              this.sendMessage(MessageActions.IMMORTALITY_OFF)
+              this.sendMessage(MessageActions.IMMORTALITY_OFF);
               this.immortal = false;
             }
           })
@@ -96,7 +96,7 @@ export class GameStatsComponent extends ECS.Component {
         this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
           .waitTime(1000 * SHIELD_DURATION)
           .call(() => {
-            this.sendMessage(MessageActions.IMMORTALITY_OFF)
+            this.sendMessage(MessageActions.IMMORTALITY_OFF);
             this.immortal = false;
           })
         );

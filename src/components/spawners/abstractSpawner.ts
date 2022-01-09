@@ -14,14 +14,6 @@ export abstract class AbstractSpawnerComponent extends ECS.Component {
     this.nextSpawnDate = this.calculateNextSpawnTime();
   }
 
-  protected calculateNextSpawnTime(): Date {
-    let idealInterval = 60000 / this.intensity;
-    let actualInterval = this.random.normal(idealInterval * 0.5, idealInterval * 1.5);
-    let date = new Date();
-    date.setMilliseconds(date.getMilliseconds() + actualInterval);
-    return date;
-  }
-
   onUpdate(): void {
     if (this.nextSpawnDate < new Date()) {
       this.lastSpawnDate = this.nextSpawnDate;
@@ -30,6 +22,14 @@ export abstract class AbstractSpawnerComponent extends ECS.Component {
     }
   }
 
-  abstract onSpawn(): void;
+  protected calculateNextSpawnTime(): Date {
+    let idealInterval = 60000 / this.intensity;
+    let actualInterval = this.random.normal(idealInterval * 0.5, idealInterval * 1.5);
+    let date = new Date();
+    date.setMilliseconds(date.getMilliseconds() + actualInterval);
+    return date;
+  }
+
+  protected abstract onSpawn(): void;
 
 }

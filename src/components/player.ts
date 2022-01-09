@@ -58,6 +58,17 @@ export class PlayerComponent extends CollidableComponent {
     }
   }
 
+  onRemove(): void {
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
+    }
+    let shield = this.scene.findObjectByTag(Tag.SHIELD);
+    if (shield && shield.parent) {
+      shield.parent.removeChild(shield);
+      this.sendMessage(MessageActions.SHIELD_OFF);
+    }
+  }
+
   private _handleKeyboardInput() {
     if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_A)) {
       this._move(Direction.LEFT);
@@ -141,7 +152,7 @@ export class PlayerComponent extends CollidableComponent {
     return {
       x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().width / 1.7,
       y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().height / 1.7
-    }
+    };
   }
 
   private _getLeftLaserOriginPosition(): Point {
@@ -151,7 +162,7 @@ export class PlayerComponent extends CollidableComponent {
     return {
       x: this.owner.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
       y: this.owner.y + Ox * Math.sin(theta) + Oy * Math.cos(theta)
-    }
+    };
   }
 
   private _getRightLaserOriginPosition(): Point {
@@ -161,14 +172,14 @@ export class PlayerComponent extends CollidableComponent {
     return {
       x: this.owner.x + Ox * Math.cos(theta) - Oy * Math.sin(theta),
       y: this.owner.y + Ox * Math.sin(theta) + Oy * Math.cos(theta)
-    }
+    };
   }
 
   private _getSideLaserOriginPosition(theta: number): Point {
     return {
       x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 - theta) * this.owner.getBounds().width / 1.7,
       y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 - theta) * this.owner.getBounds().height / 1.7
-    }
+    };
   }
 
   private _checkCollisions() {
@@ -198,21 +209,10 @@ export class PlayerComponent extends CollidableComponent {
   }
 
   private _enableShield() {
-    this.lastDateShieldActivated = new Date()
+    this.lastDateShieldActivated = new Date();
     if (!this.shieldActive) {
       GameFactory.getInstance().spawnShield(this.scene, { x: this.owner.x, y: this.owner.y });
       this.shieldActive = true;
-    }
-  }
-
-  onRemove(): void {
-    if (this.owner && this.owner.parent) {
-      this.owner.parent.removeChild(this.owner);
-    }
-    let shield = this.scene.findObjectByTag(Tag.SHIELD);
-    if (shield && shield.parent) {
-      shield.parent.removeChild(shield);
-      this.sendMessage(MessageActions.SHIELD_OFF);
     }
   }
 

@@ -15,6 +15,13 @@ export class CollectableComponent extends CollidableComponent {
     this._checkPlayerCollision();
   }
 
+  onRemove(): void {
+    let collectableSprite = this.owner;
+    if (collectableSprite && collectableSprite.parent) {
+      collectableSprite.parent.removeChild(collectableSprite);
+    }
+  }
+
   private _checkPlayerCollision() {
     let player = this.scene.findObjectByTag(Tag.PLAYER);
     if (player && this.collidesWith(player)) {
@@ -33,13 +40,6 @@ export class CollectableComponent extends CollidableComponent {
         PIXISound.sound.play('pickup-sfx', { volume: VOLUME * 1.3 });
       }
       this.finish();
-    }
-  }
-
-  onRemove(): void {
-    let collectableSprite = this.owner;
-    if (collectableSprite && collectableSprite.parent) {
-      collectableSprite.parent.removeChild(collectableSprite);
     }
   }
 

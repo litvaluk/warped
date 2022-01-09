@@ -68,8 +68,8 @@ export class MenuFactory {
       .build();
     startGame.interactive = true;
     startGame.buttonMode = true;
-    startGame.on('mouseover', () => { startGame.style = TEXT_STYLE_MENU_ITEM_HOVER });
-    startGame.on('mouseout', () => { startGame.style = TEXT_STYLE_MENU_ITEM });
+    startGame.on('mouseover', () => { startGame.style = TEXT_STYLE_MENU_ITEM_HOVER; });
+    startGame.on('mouseout', () => { startGame.style = TEXT_STYLE_MENU_ITEM; });
     startGame.on('click', () => {
       scene.callWithDelay(0, () => {
         scene.clearScene();
@@ -87,8 +87,8 @@ export class MenuFactory {
       .build();
     howToPlay.interactive = true;
     howToPlay.buttonMode = true;
-    howToPlay.on('mouseover', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM_HOVER });
-    howToPlay.on('mouseout', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM });
+    howToPlay.on('mouseover', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM_HOVER; });
+    howToPlay.on('mouseout', () => { howToPlay.style = TEXT_STYLE_MENU_ITEM; });
     howToPlay.on('click', () => {
       scene.callWithDelay(0, () => {
         scene.clearScene();
@@ -131,8 +131,8 @@ export class MenuFactory {
     backToMenu.position.set(0 + SCORE_TEXT_OFFSET_X, scene.height + SCORE_TEXT_OFFSET_Y - backToMenu.height);
     backToMenu.interactive = true;
     backToMenu.buttonMode = true;
-    backToMenu.on('mouseover', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM_HOVER });
-    backToMenu.on('mouseout', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM });
+    backToMenu.on('mouseover', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM_HOVER; });
+    backToMenu.on('mouseout', () => { backToMenu.style = TEXT_STYLE_MENU_ITEM; });
     backToMenu.on('click', () => {
       scene.callWithDelay(0, () => {
         scene.clearScene();
@@ -153,8 +153,8 @@ export class MenuFactory {
     startAgain.position.set(scene.width - SCORE_TEXT_OFFSET_X, scene.height + SCORE_TEXT_OFFSET_Y - startAgain.height);
     startAgain.interactive = true;
     startAgain.buttonMode = true;
-    startAgain.on('mouseover', () => { startAgain.style = TEXT_STYLE_MENU_ITEM_HOVER });
-    startAgain.on('mouseout', () => { startAgain.style = TEXT_STYLE_MENU_ITEM });
+    startAgain.on('mouseover', () => { startAgain.style = TEXT_STYLE_MENU_ITEM_HOVER; });
+    startAgain.on('mouseout', () => { startAgain.style = TEXT_STYLE_MENU_ITEM; });
     startAgain.on('click', () => {
       scene.callWithDelay(0, () => {
         scene.clearScene();

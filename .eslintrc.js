@@ -15,7 +15,7 @@ module.exports = {
     "rules": {
         "@typescript-eslint/dot-notation": "off",
         "@typescript-eslint/indent": [
-            "error",
+            "off",
             "tab",
         ],
         "@typescript-eslint/member-delimiter-style": [
@@ -50,7 +50,7 @@ module.exports = {
         ],
         "@typescript-eslint/type-annotation-spacing": "error",
         "brace-style": [
-            "error",
+            "off",
             "1tbs"
         ],
         "capitalized-comments": [
