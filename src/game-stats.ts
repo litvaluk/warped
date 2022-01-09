@@ -9,6 +9,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
 
   onInit(): void {
     super.onInit();
+    this.name = 'game-stats';
     this.subscribe(MessageActions.ADD_LIFE);
     this.subscribe(MessageActions.REMOVE_LIFE);
     this.subscribe(MessageActions.ADD_SCORE);
@@ -45,7 +46,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
 
   private _addLife() {
     this.props.lives += 1;
-    this.scene.stage.addChild(Factory.getInstance().createLifeSprite(this.props.lives));
+    Factory.getInstance().createLifeSprite(this.scene, this.props.lives);
   }
 
   private _removeLife() {
@@ -73,7 +74,7 @@ export class GameStats extends ECS.Component<GameStatsState> {
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
           .endRepeat()
           .call(() => {
-            let playerComponent = this.scene.stage.findComponentByName('player') as Player;
+            let playerComponent = playerSprite.findComponentByName('player') as Player;
             if (playerComponent && !playerComponent.props.shieldActive) {
               this.sendMessage(MessageActions.IMMORTALITY_OFF)
               this.props.immortal = false;

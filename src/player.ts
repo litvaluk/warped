@@ -12,6 +12,7 @@ export class Player extends ECS.Component<PlayerState> {
 
   onInit() {
     super.onInit();
+    this.name = 'player';
     this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
     this.subscribe(ECS.PointerMessages.POINTER_RELEASE);

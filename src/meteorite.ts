@@ -48,9 +48,9 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
       let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStats;
       if (gameStatsComponent && !gameStatsComponent.props.immortal) {
         playerSprite.parent.removeChild(playerSprite);
-        let playerComponent = this.scene.stage.findComponentByName('player');
+        let playerComponent = playerSprite.findComponentByName('player');
         if (playerComponent) {
-          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 });
+          Factory.getInstance().spawnExplosion(this.scene, { ...playerComponent.props.position, angle: 0 }, null, false);
           playerComponent.finish();
         }
         Factory.getInstance().createPlayer(this.scene);
@@ -60,7 +60,7 @@ export class Meteorite extends ECS.Component<MeteoriteState> {
         this.sendMessage(MessageActions.IMMORTALITY_ON);
         this.sendMessage(MessageActions.REMOVE_LIFE);
       }
-      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size), false);
+      Factory.getInstance().spawnExplosion(this.scene, { ...this.props.position, angle: 0 }, this._getExplosionScaleForMeteorite(this.props.size));
       this.finish();
       return;
     }
