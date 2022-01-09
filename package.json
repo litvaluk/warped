@@ -1,7 +1,7 @@
 {
   "name": "warped",
   "author": "Lukáš Litvan",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/prebuild-project && parcel view/index.html --dist-dir build",

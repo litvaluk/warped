@@ -1,4 +1,5 @@
 # Warped
+The game is deployed at [https://warped.lukaslitvan.cz/](https://warped.lukaslitvan.cz/).
 
 ## Description
 - Genre: Space Shooter
@@ -16,6 +17,9 @@
   - at the start, player has 3 lives and shoots with basic laser
   - player can sometimes get another life, laser upgrades or a shield for 10 seconds from destroyed meteorites
   - the enemies spawn more based on elapsed time
+
+## Diagram
+![Diagram](./diagram.webp "Diagram")
 
 ## How to run
 - the project is powered by ParcelJS, TypeScript, PixiJS and ECSLite libraries
@@ -39,3 +43,16 @@
 
 ## ParcelJS and Building process
 - [parcelJS](https://parceljs.org/) is a simple bundler that requires minimum configuration (alternative to webpack)
+
+## Sources
+### Images
+- [Background](https://opengameart.org/content/seamless-space-backgrounds)
+- [Spaceships](https://opengameart.org/content/2d-space-ships-pack-war-antuz-race)
+- [Lasers](https://opengameart.org/content/assets-free-laser-bullets-pack-2020)
+- [Meteorites]()
+- [Explosion](https://www.seekpng.com/ipng/u2e6r5y3r5y3w7y3_fire2-rpg-maker-mv-explosion-animation/)
+- [Shield](https://opengameart.org/content/shield-effect)
+### Sounds
+- [Laser](https://opengameart.org/content/4-projectile-launches)
+- [Explosion](https://opengameart.org/content/2-high-quality-explosions)
+- [Pickup](https://opengameart.org/content/plingy-coin)
