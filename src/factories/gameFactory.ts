@@ -1,7 +1,7 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LaserOrigin, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
+import { CollectableType, EnemyColor, EnemyVariant, ENEMY_SHOOTING_INTENSITY, ENEMY_SPAWNER_STARTING_INTESITY, LaserColor, LaserOrigin, LASER_SPEED, LIFE_OFFSET_X, LIFE_OFFSET_Y, MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY, PLAYER_STARTING_X, PLAYER_STARTING_Y, PLAY_SOUND, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_TEXT_OFFSET_X, SCORE_TEXT_OFFSET_Y, STARTING_LASER_LEVEL, STARTING_SCORE, Tag, TEXT_STYLE_SCORE, UI_Z_INDEX, VOLUME } from '../constants';
 import { PlayerComponent } from '../components/player';
 import { EnemySpawnerComponent } from '../components/spawners/enemySpawner';
 import { MeteoriteSpawnerComponent } from '../components/spawners/meteoriteSpawner';
@@ -71,7 +71,7 @@ export class GameFactory {
       .localPos(position.x, position.y)
       .withName(name)
       .withTag(tag)
-      .withComponent(new LaserComponent())
+      .withComponent(new LaserComponent(LASER_SPEED))
       .withParent(scene.stage)
       .build();
 

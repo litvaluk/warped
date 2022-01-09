@@ -4,8 +4,9 @@ import { MenuFactory } from '../factories/menuFactory';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
 import { getAngleRad } from '../helper';
+import { CollidableComponent } from './collidable';
 
-export class PlayerComponent extends ECS.Component {
+export class PlayerComponent extends CollidableComponent {
 
   shieldActive: boolean;
   lastDateShieldActivated: Date;
@@ -201,7 +202,7 @@ export class PlayerComponent extends ECS.Component {
     }
     let lasers = this.scene.findObjectsByTag(Tag.LASER_ENEMY);
     for (let i = 0; i < lasers.length; i++) {
-      if (this._collidesWith(lasers[i])) {
+      if (this.collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
         this.finish();
@@ -211,15 +212,6 @@ export class PlayerComponent extends ECS.Component {
         return;
       }
     }
-  }
-
-  private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.owner.getBounds();
-    let otherBounds = other.getBounds();
-    return ownBounds.x + ownBounds.width > otherBounds.x &&
-      ownBounds.x < otherBounds.x + otherBounds.width &&
-      ownBounds.y + ownBounds.height > otherBounds.y &&
-      ownBounds.y < otherBounds.y + otherBounds.height;
   }
 
   private _removeLaserSprite(spriteName: string) {

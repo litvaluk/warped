@@ -1,11 +1,18 @@
-import * as ECS from '../../libs/pixi-ecs';
-import { LASER_SPEED, SCENE_HEIGHT, SCENE_WIDTH } from '../constants';
+import { LASER_SPEED } from '../constants';
+import { CollidableComponent } from './collidable';
 
-export class LaserComponent extends ECS.Component {
+export class LaserComponent extends CollidableComponent {
+
+  laserSpeed: number;
+
+  constructor(laserSpeed: number) {
+    super();
+    this.laserSpeed = laserSpeed;
+  }
 
   onUpdate() {
     this._updatePosition();
-    if (this._isOutOfScreen()) {
+    if (this.isOutOfScreen()) {
       this.finish();
       return
     }
@@ -14,10 +21,6 @@ export class LaserComponent extends ECS.Component {
   private _updatePosition(): void {
     this.owner.x += Math.cos(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
     this.owner.y += Math.sin(this.owner.rotation - Math.PI / 2) * LASER_SPEED;
-  }
-
-  private _isOutOfScreen(): boolean {
-    return this.owner.x > SCENE_WIDTH || this.owner.x < 0 || this.owner.y > SCENE_HEIGHT || this.owner.y < 0;
   }
 
   onRemove(): void {

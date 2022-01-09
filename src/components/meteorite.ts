@@ -1,9 +1,9 @@
-import * as ECS from '../../libs/pixi-ecs';
 import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteColor, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
+import { CollidableComponent } from './collidable';
 import { GameStatsComponent } from './gameStats';
 
-export class MeteoriteComponent extends ECS.Component {
+export class MeteoriteComponent extends CollidableComponent {
 
   size: MeteoriteSize;
   color: MeteoriteColor;
@@ -16,7 +16,7 @@ export class MeteoriteComponent extends ECS.Component {
 
   onUpdate(): void {
     this._updatePosition();
-    if (this._isOutOfScreen()) {
+    if (this.isOutOfScreen()) {
       this.finish();
       return;
     }
@@ -28,14 +28,10 @@ export class MeteoriteComponent extends ECS.Component {
     this.owner.y += Math.sin(this.owner.rotation - Math.PI / 2) * METEORITE_SPEED;
   }
 
-  private _isOutOfScreen(): boolean {
-    return this.owner.x > SCENE_WIDTH + 100 || this.owner.x < 0 - 100 || this.owner.y > SCENE_HEIGHT + 100 || this.owner.y < 0 - 100;
-  }
-
   private _checkCollisions() {
     let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
-      if (this._collidesWith(lasers[i])) {
+      if (this.collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         if (this.size !== MeteoriteSize.SMALL) {
           this._shatterMeteorite();
@@ -50,7 +46,7 @@ export class MeteoriteComponent extends ECS.Component {
       }
     }
     let playerSprite = this.scene.findObjectByName('player');
-    if (playerSprite && this._collidesWith(playerSprite)) {
+    if (playerSprite && this.collidesWith(playerSprite)) {
       let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
       if (gameStatsComponent && !gameStatsComponent.immortal) {
         playerSprite.parent.removeChild(playerSprite);
@@ -121,15 +117,6 @@ export class MeteoriteComponent extends ECS.Component {
     if (laserSprite) {
       laserSprite.parent.removeChild(laserSprite);
     }
-  }
-
-  private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.owner.getBounds();
-    let otherBounds = other.getBounds();
-    return ownBounds.x + ownBounds.width > otherBounds.x &&
-      ownBounds.x < otherBounds.x + otherBounds.width &&
-      ownBounds.y + ownBounds.height > otherBounds.y &&
-      ownBounds.y < otherBounds.y + otherBounds.height;
   }
 
   private _chooseCollectableType(): CollectableType {

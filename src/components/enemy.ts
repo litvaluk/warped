@@ -1,11 +1,11 @@
 import { Random } from '../../libs/aph-math';
-import * as ECS from '../../libs/pixi-ecs';
 import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, LaserOrigin, MessageActions, Position, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
 import { getAngleRad } from '../helper';
+import { CollidableComponent } from './collidable';
 
-export class Enemy extends ECS.Component {
+export class Enemy extends CollidableComponent {
 
   color: EnemyColor;
   variant: EnemyVariant;
@@ -26,6 +26,7 @@ export class Enemy extends ECS.Component {
   }
 
   onInit(): void {
+    console.log(this.scene.width, this.scene.height);
     super.onInit();
     let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
     if (playerSprite) {
@@ -46,17 +47,10 @@ export class Enemy extends ECS.Component {
     this._checkCollisions();
   }
 
-  private _isOutOfScreen(container: ECS.Container): boolean {
-    return this.owner.x > SCENE_WIDTH + container.width ||
-      this.owner.x < 0 - container.width ||
-      this.owner.y > SCENE_HEIGHT + container.height ||
-      this.owner.y < 0 - container.height;
-  }
-
   private _checkCollisions() {
     let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
-      if (this._collidesWith(lasers[i])) {
+      if (this.collidesWith(lasers[i])) {
         this._removeLaserSprite(lasers[i].name);
         this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.variant) });
         GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y, angle: 0 });
@@ -65,7 +59,7 @@ export class Enemy extends ECS.Component {
       }
     }
     let playerSprite = this.scene.findObjectByName('player');
-    if (playerSprite && this._collidesWith(playerSprite)) {
+    if (playerSprite && this.collidesWith(playerSprite)) {
       let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
       if (gameStatsComponent && !gameStatsComponent.immortal) {
         let playerComponent = playerSprite.findComponentByName('player');
@@ -81,20 +75,10 @@ export class Enemy extends ECS.Component {
       this.finish();
       return;
     }
-    const enemySprite = this.owner;
-    if (enemySprite && this._isOutOfScreen(enemySprite)) {
+    if (this.isOutOfScreen()) {
       this.finish();
       return;
     }
-  }
-
-  private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.owner.getBounds();
-    let otherBounds = other.getBounds();
-    return ownBounds.x + ownBounds.width > otherBounds.x &&
-      ownBounds.x < otherBounds.x + otherBounds.width &&
-      ownBounds.y + ownBounds.height > otherBounds.y &&
-      ownBounds.y < otherBounds.y + otherBounds.height;
   }
 
   private _removeLaserSprite(spriteName: string) {
