@@ -1,9 +1,8 @@
 import * as ECS from '../../libs/pixi-ecs';
-import { Direction, LaserColor, LASER_COOLDOWN, MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, PLAYER_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
+import { Direction, GAME_STATS_COMPONENT_NAME, LaserColor, LASER_COOLDOWN, MessageActions, PLAYER_COMPONENT_NAME, PLAYER_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SHIELD_DURATION, Tag } from '../constants';
 import { MenuFactory } from '../factories/menuFactory';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
-import { getAngleRad } from '../helper';
 import { CollidableComponent } from './collidable';
 
 export class PlayerComponent extends CollidableComponent {
@@ -13,7 +12,7 @@ export class PlayerComponent extends CollidableComponent {
   laserLevel: number;
   lastDateShot: Date;
 
-  private _keyInputCmp: ECS.KeyInputComponent;
+  private _keyInputComponent: ECS.KeyInputComponent;
   private _leftMouseButtonPressed;
 
   constructor(laserLevel: number) {
@@ -25,8 +24,8 @@ export class PlayerComponent extends CollidableComponent {
 
   onInit() {
     super.onInit();
-    this.name = 'player';
-    this._keyInputCmp = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
+    this.name = PLAYER_COMPONENT_NAME;
+    this._keyInputComponent = this.scene.findGlobalComponentByName<ECS.KeyInputComponent>(ECS.KeyInputComponent.name);
     this.subscribe(ECS.PointerMessages.POINTER_DOWN);
     this.subscribe(ECS.PointerMessages.POINTER_RELEASE);
     this.subscribe(ECS.PointerMessages.POINTER_OVER);
@@ -49,8 +48,7 @@ export class PlayerComponent extends CollidableComponent {
     } else if (msg.action === ECS.PointerMessages.POINTER_RELEASE) {
       this._leftMouseButtonPressed = false;
     } else if (msg.action === ECS.PointerMessages.POINTER_OVER) {
-      let angle = getAngleRad(this.owner.x, this.owner.y, msg.data.mousePos.posX, msg.data.mousePos.posY);
-      this._updateAngle(angle);
+      this.owner.rotation = Math.atan2(msg.data.mousePos.posY - this.owner.y, msg.data.mousePos.posX - this.owner.x) + Math.PI / 2;
     } else if (msg.action === MessageActions.SHIELD_ON) {
       this._enableShield();
     } else if (msg.action === MessageActions.INCREASE_LASER_LEVEL) {
@@ -61,15 +59,15 @@ export class PlayerComponent extends CollidableComponent {
   }
 
   private _handleKeyboardInput() {
-    if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_A)) {
+    if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_A)) {
       this._move(Direction.LEFT);
-    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_S)) {
+    } else if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_S)) {
       this._move(Direction.DOWN);
-    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_W)) {
+    } else if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_W)) {
       this._move(Direction.UP);
-    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_D)) {
+    } else if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_D)) {
       this._move(Direction.RIGHT);
-    } else if (this._keyInputCmp.isKeyPressed(ECS.Keys.KEY_ESCAPE)) {
+    } else if (this._keyInputComponent.isKeyPressed(ECS.Keys.KEY_ESCAPE)) {
       this.scene.callWithDelay(0, () => {
         this.scene.clearScene();
         MenuFactory.getInstance().loadMenuStage(this.scene);
@@ -79,20 +77,16 @@ export class PlayerComponent extends CollidableComponent {
 
   private _updateShield() {
     if (this.shieldActive) {
-      let shieldSprite = this.scene.findObjectByName('shield');
-      if (shieldSprite) {
-        shieldSprite.position.set(this.owner.x, this.owner.y);
+      let shield = this.scene.findObjectByName('shield');
+      if (shield) {
+        shield.position.set(this.owner.x, this.owner.y);
         if (new Date().getTime() - this.lastDateShieldActivated.getTime() > 1000 * SHIELD_DURATION) {
-          shieldSprite.parent.removeChild(shieldSprite);
+          shield.parent.removeChild(shield);
           this.shieldActive = false;
           this.sendMessage(MessageActions.SHIELD_OFF);
         }
       }
     }
-  }
-
-  private _updateAngle(angle: number) {
-    this.owner.rotation = angle;
   }
 
   private _move(direction: Direction) {
@@ -117,8 +111,6 @@ export class PlayerComponent extends CollidableComponent {
           this.owner.y += PLAYER_SPEED;
         }
         break;
-      default:
-        break;
     }
   }
 
@@ -126,23 +118,21 @@ export class PlayerComponent extends CollidableComponent {
     if (this.lastDateShot && new Date().getTime() - this.lastDateShot.getTime() < 1000 * LASER_COOLDOWN) {
       return;
     }
-    let playerSprite = this.owner
-    if (playerSprite) {
-      switch (this.laserLevel) {
-        case 1:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
-          break;
-        case 2:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
-          break;
-        case 3:
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftSideLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
-          GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightSideLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
-          break;
-      }
+    switch (this.laserLevel) {
+      case 1:
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getCenterLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
+        break;
+      case 2:
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
+        break;
+      case 3:
+        const theta = Math.PI / 6;
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getLeftLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER);
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getRightLaserOriginPosition(), this.owner.rotation, Tag.LASER_PLAYER, false);
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getSideLaserOriginPosition(-theta), this.owner.rotation + theta, Tag.LASER_PLAYER, false);
+        GameFactory.getInstance().spawnLaser(this.scene, LaserColor.BLUE, this._getSideLaserOriginPosition(theta), this.owner.rotation - theta, Tag.LASER_PLAYER, false);
+        break;
     }
     this.lastDateShot = new Date();
   }
@@ -174,31 +164,22 @@ export class PlayerComponent extends CollidableComponent {
     }
   }
 
-  private _getLeftSideLaserOriginPosition(): Point {
-    let angle = Math.PI / 6;
+  private _getSideLaserOriginPosition(theta: number): Point {
     return {
-      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 - angle) * this.owner.getBounds().width / 1.7,
-      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 - angle) * this.owner.getBounds().height / 1.7
-    }
-  }
-
-  private _getRightSideLaserOriginPosition(): Point {
-    let angle = Math.PI / 6;
-    return {
-      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 + angle) * this.owner.getBounds().width / 1.7,
-      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 + angle) * this.owner.getBounds().height / 1.7
+      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2 - theta) * this.owner.getBounds().width / 1.7,
+      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2 - theta) * this.owner.getBounds().height / 1.7
     }
   }
 
   private _checkCollisions() {
-    let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
+    let gameStatsComponent = this.scene.findGlobalComponentByName<GameStatsComponent>(GAME_STATS_COMPONENT_NAME);
     if (gameStatsComponent && gameStatsComponent.immortal) {
       return;
     }
     let lasers = this.scene.findObjectsByTag(Tag.LASER_ENEMY);
     for (let i = 0; i < lasers.length; i++) {
       if (this.collidesWith(lasers[i])) {
-        this._removeLaserSprite(lasers[i].name);
+        this._removeLaser(lasers[i].name);
         GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y });
         this.finish();
         this.sendMessage(MessageActions.REMOVE_LIFE);
@@ -209,10 +190,10 @@ export class PlayerComponent extends CollidableComponent {
     }
   }
 
-  private _removeLaserSprite(spriteName: string) {
-    let laserSprite = this.scene.findObjectByName(spriteName);
-    if (laserSprite) {
-      laserSprite.parent.removeChild(laserSprite);
+  private _removeLaser(spriteName: string) {
+    let laser = this.scene.findObjectByName(spriteName);
+    if (laser) {
+      laser.parent.removeChild(laser);
     }
   }
 
@@ -225,16 +206,12 @@ export class PlayerComponent extends CollidableComponent {
   }
 
   onRemove(): void {
-    if (!this.scene) {
-      return;
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
     }
-    let playerSprite = this.owner;
-    if (playerSprite && playerSprite.parent) {
-      playerSprite.parent.removeChild(playerSprite);
-    }
-    let shieldSprite = this.scene.findObjectByName('shield');
-    if (shieldSprite && shieldSprite.parent) {
-      shieldSprite.parent.removeChild(shieldSprite);
+    let shield = this.scene.findObjectByTag(Tag.SHIELD);
+    if (shield && shield.parent) {
+      shield.parent.removeChild(shield);
       this.sendMessage(MessageActions.SHIELD_OFF);
     }
   }

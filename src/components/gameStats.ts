@@ -1,20 +1,28 @@
 import * as ECS from '../../libs/pixi-ecs';
 import * as PIXI from 'pixi.js';
-import { MessageActions, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, STARTING_LASER_LEVEL, STARTING_LIVES, STARTING_SCORE, Tag } from '../constants';
+import { GAME_STATS_COMPONENT_NAME, MessageActions, PLAYER_COMPONENT_NAME, PLAYER_IMMORTALITY_DURATION, PLAYER_IMMORTALITY_FLASHES, SHIELD_DURATION, STARTING_LASER_LEVEL, STARTING_LIVES, STARTING_SCORE, Tag } from '../constants';
 import { MenuFactory } from '../factories/menuFactory';
 import { PlayerComponent } from './player';
 import { GameFactory } from '../factories/gameFactory';
 
 export class GameStatsComponent extends ECS.Component {
 
-  score = STARTING_SCORE;
-  lives = STARTING_LIVES;
-  laserLevel = STARTING_LASER_LEVEL;
-  immortal = false;
+  score: number;
+  lives: number;
+  laserLevel: number;
+  immortal: boolean;
+
+  constructor() {
+    super();
+    this.score = STARTING_SCORE;
+    this.lives = STARTING_LIVES;
+    this.laserLevel = STARTING_LASER_LEVEL;
+    this.immortal = false;
+  }
 
   onInit(): void {
     super.onInit();
-    this.name = 'game-stats';
+    this.name = GAME_STATS_COMPONENT_NAME;
     this.subscribe(MessageActions.ADD_LIFE);
     this.subscribe(MessageActions.REMOVE_LIFE);
     this.subscribe(MessageActions.ADD_SCORE);
@@ -46,9 +54,6 @@ export class GameStatsComponent extends ECS.Component {
     }
   }
 
-  onUpdate(): void {
-  }
-
   private _addLife() {
     this.lives += 1;
     GameFactory.getInstance().createLifeSprite(this.scene, this.lives);
@@ -56,30 +61,32 @@ export class GameStatsComponent extends ECS.Component {
 
   private _removeLife() {
     const life = this.scene.findObjectByName(`life-${this.lives}`);
-    life.parent.removeChild(life);
+    if (life && life.parent) {
+      life.parent.removeChild(life);
+    }
     this.lives -= 1;
   }
 
   private _addScore(toAdd: number) {
     this.score += toAdd;
-    let scoreText = this.scene.stage.getChildByName('score-text') as PIXI.Text;
+    let scoreText = this.scene.findObjectByTag(Tag.SCORE_TEXT) as ECS.Text;
     scoreText.text = `${this.score}`;
   }
 
   private _startImmortality(shield: boolean) {
-    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (playerSprite) {
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player) {
       this.immortal = true;
       if (!shield) {
         this.scene.stage.addComponentAndRun(new ECS.ChainComponent()
           .beginRepeat(PLAYER_IMMORTALITY_FLASHES)
-          .call(() => { playerSprite.alpha = 0.3 })
+          .call(() => { player.alpha = 0.3 })
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
-          .call(() => { playerSprite.alpha = 1 })
+          .call(() => { player.alpha = 1 })
           .waitTime(1000 * PLAYER_IMMORTALITY_DURATION / PLAYER_IMMORTALITY_FLASHES / 2)
           .endRepeat()
           .call(() => {
-            let playerComponent = playerSprite.findComponentByName('player') as PlayerComponent;
+            let playerComponent = player.findComponentByName<PlayerComponent>(PLAYER_COMPONENT_NAME);
             if (playerComponent && !playerComponent.shieldActive) {
               this.sendMessage(MessageActions.IMMORTALITY_OFF)
               this.immortal = false;

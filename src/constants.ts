@@ -16,7 +16,7 @@ export const PLAYER_IMMORTALITY_FLASHES = 10;
 
 export const STARTING_SCORE = 0;
 export const STARTING_LIVES = 3;
-export const STARTING_LASER_LEVEL = 1;
+export const STARTING_LASER_LEVEL = 3;
 
 export const DIFFICULTY_INCREASE_INTERVAL = 20;
 export const DIFFICULTY_INCREASE_MULTIPLIER = 1.2;
@@ -38,7 +38,7 @@ export const ENEMY_SPEED = 2;
 export const ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY = 15;
 
 export const METEORITE_SPEED = 2.5;
-export const METEORITE_SHATTER_ANGLE_CHANGE = Math.PI / 6;
+export const METEORITE_SHATTER_ROTATION_CHANGE = Math.PI / 6;
 
 export const ENEMY_SPAWNER_STARTING_INTESITY = 20;
 export const METEORITE_SPAWNER_STARTING_INTESITY = 20;
@@ -54,6 +54,9 @@ export const LIFE_OFFSET_X = -20;
 export const LIFE_OFFSET_Y = -10;
 export const SCORE_TEXT_OFFSET_X = 20;
 export const SCORE_TEXT_OFFSET_Y = -20;
+
+export const PLAYER_COMPONENT_NAME = 'player';
+export const GAME_STATS_COMPONENT_NAME = 'game-stats';
 
 export const UI_Z_INDEX = 999;
 
@@ -125,7 +128,9 @@ export enum Tag {
   LASER_ENEMY = 'laser-enemy',
   ENEMY = 'enemy',
   METEORITE = 'meteorite',
-  COLLECTABLE = 'collectable'
+  COLLECTABLE = 'collectable',
+  SHIELD = 'shield',
+  SCORE_TEXT = 'score-text'
 }
 
 export enum MessageActions {

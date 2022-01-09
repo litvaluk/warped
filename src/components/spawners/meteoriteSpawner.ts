@@ -1,4 +1,4 @@
-import { MeteoriteColor, MeteoriteSize, METEORITE_SPAWNER_STARTING_INTESITY } from '../../constants';
+import { MeteoriteColor, MeteoriteSize } from '../../constants';
 import { GameFactory } from '../../factories/gameFactory';
 import { AbstractSpawnerComponent } from './abstractSpawner';
 

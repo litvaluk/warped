@@ -1,8 +1,8 @@
-import * as ECS from '../../libs/pixi-ecs';
 import * as PIXISound from '@pixi/sound';
-import { CollectableType, MessageActions, PLAY_SOUND, VOLUME } from '../constants';
+import { CollectableType, MessageActions, PLAY_SOUND, Tag, VOLUME } from '../constants';
+import { CollidableComponent } from './collidable';
 
-export class CollectableComponent extends ECS.Component {
+export class CollectableComponent extends CollidableComponent {
 
   type: CollectableType;
 
@@ -16,8 +16,8 @@ export class CollectableComponent extends ECS.Component {
   }
 
   private _checkPlayerCollision() {
-    let playerSprite = this.scene.findObjectByName('player');
-    if (playerSprite && this._collidesWith(playerSprite)) {
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player && this.collidesWith(player)) {
       switch (this.type) {
         case CollectableType.LIFE:
           this.sendMessage(MessageActions.ADD_LIFE);
@@ -34,15 +34,6 @@ export class CollectableComponent extends ECS.Component {
       }
       this.finish();
     }
-  }
-
-  private _collidesWith(other: ECS.Container): boolean {
-    let ownBounds = this.owner.getBounds();
-    let otherBounds = other.getBounds();
-    return ownBounds.x + ownBounds.width > otherBounds.x &&
-      ownBounds.x < otherBounds.x + otherBounds.width &&
-      ownBounds.y + ownBounds.height > otherBounds.y &&
-      ownBounds.y < otherBounds.y + otherBounds.height;
   }
 
   onRemove(): void {

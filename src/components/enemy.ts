@@ -1,9 +1,9 @@
 import { Random } from '../../libs/aph-math';
-import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, LaserColor, MessageActions, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
+import { EnemyColor, EnemyVariant, ENEMY_MOVE_DIRECTION_CHANGE_INTENSITY, ENEMY_SHOOTING_INTENSITY, ENEMY_SPEED, GAME_STATS_COMPONENT_NAME, LaserColor, MessageActions, PLAYER_COMPONENT_NAME, Point, SCORE_FOR_ENEMY_HUGE, SCORE_FOR_ENEMY_LARGE, SCORE_FOR_ENEMY_MEDIUM, SCORE_FOR_ENEMY_SMALL, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { GameStatsComponent } from './gameStats';
-import { getAngleRad } from '../helper';
 import { CollidableComponent } from './collidable';
+import { PlayerComponent } from './player';
 
 export class Enemy extends CollidableComponent {
 
@@ -11,7 +11,6 @@ export class Enemy extends CollidableComponent {
   variant: EnemyVariant;
   shootingIntensity: number;
   random = new Random(Date.now());
-  lastShotDate: Date;
   nextShotDate: Date;
   nextDirectionChangeDate: Date;
   direction: number;
@@ -21,28 +20,28 @@ export class Enemy extends CollidableComponent {
     this.color = color;
     this.variant = variant;
     this.shootingIntensity = shootingIntensity;
-    this.nextShotDate = this._calculateNextShotTime();
+    this.nextShotDate = this._calculateNextShotDate();
     this.nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
   }
 
   onInit(): void {
-    console.log(this.scene.width, this.scene.height);
     super.onInit();
-    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (playerSprite) {
-      this.direction = getAngleRad(this.owner.x, this.owner.y, playerSprite.x, playerSprite.y);
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player) {
+      this.direction = Math.atan2(player.y - this.owner.y, player.x - this.owner.x) + Math.PI / 2;
     }
   }
 
   onUpdate() {
-    if (new Date() > this.nextShotDate) {
+    const now = new Date();
+    if (this.nextShotDate < now) {
       this._shoot();
     }
-    if (new Date() > this.nextDirectionChangeDate) {
+    if (this.nextDirectionChangeDate < now) {
       this.nextDirectionChangeDate = this._calculateNextDirectionChangeDate();
       this.direction = Math.random() * 2 * Math.PI;
     }
-    this._updateAngle();
+    this._updateRotation();
     this._move();
     this._checkCollisions();
   }
@@ -51,20 +50,21 @@ export class Enemy extends CollidableComponent {
     let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
       if (this.collidesWith(lasers[i])) {
-        this._removeLaserSprite(lasers[i].name);
-        this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy(this.variant) });
+        this._removeLaser(lasers[i].name);
+        this.sendMessage(MessageActions.ADD_SCORE, { toAdd: this._getScoreForEnemy() });
         GameFactory.getInstance().spawnExplosion(this.scene, { x: this.owner.x, y: this.owner.y });
         this.finish();
         return;
       }
     }
-    let playerSprite = this.scene.findObjectByName('player');
-    if (playerSprite && this.collidesWith(playerSprite)) {
-      let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
-      if (gameStatsComponent && !gameStatsComponent.immortal) {
-        let playerComponent = playerSprite.findComponentByName('player');
+
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player && this.collidesWith(player)) {
+      let gameStats = this.scene.findGlobalComponentByName<GameStatsComponent>(GAME_STATS_COMPONENT_NAME);
+      if (gameStats && !gameStats.immortal) {
+        let playerComponent = player.findComponentByName<PlayerComponent>(PLAYER_COMPONENT_NAME);
         if (playerComponent) {
-          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { x: player.x, y: player.y }, null, false);
           playerComponent.finish();
         }
         GameFactory.getInstance().spawnPlayer(this.scene);
@@ -75,57 +75,43 @@ export class Enemy extends CollidableComponent {
       this.finish();
       return;
     }
+
     if (this.isOutOfScreen()) {
       this.finish();
       return;
     }
   }
 
-  private _removeLaserSprite(spriteName: string) {
-    let laserSprite = this.scene.findObjectByName(spriteName);
-    if (laserSprite) {
-      laserSprite.parent.removeChild(laserSprite);
+  private _removeLaser(spriteName: string) {
+    let laser = this.scene.findObjectByName(spriteName);
+    if (laser) {
+      laser.parent.removeChild(laser);
     }
   }
 
   private _shoot() {
-    let enemySprite = this.owner;
-    if (enemySprite) {
-      const pos: Point = {
-        x: enemySprite.x + Math.cos(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().width / 1.7,
-        y: enemySprite.y + Math.sin(enemySprite.rotation - Math.PI / 2) * enemySprite.getBounds().height / 1.7
-      }
-      GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), pos, this.owner.rotation, Tag.LASER_ENEMY);
-      this.lastShotDate = this.nextShotDate;
-      this.nextShotDate = this._calculateNextShotTime();
+    const newlaserPosition: Point = {
+      x: this.owner.x + Math.cos(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().width / 1.7,
+      y: this.owner.y + Math.sin(this.owner.rotation - Math.PI / 2) * this.owner.getBounds().height / 1.7
     }
+    GameFactory.getInstance().spawnLaser(this.scene, this._getLaserColorForEnemy(), newlaserPosition, this.owner.rotation, Tag.LASER_ENEMY);
+    this.nextShotDate = this._calculateNextShotDate();
   }
 
-  private _updateAngle() {
-    let playerSprite = this.scene.findObjectByTag(Tag.PLAYER);
-    if (playerSprite) {
-      this.owner.rotation = getAngleRad(this.owner.x, this.owner.y, playerSprite.x, playerSprite.y);
+  private _updateRotation() {
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player) {
+      this.owner.rotation = Math.atan2(player.y - this.owner.y, player.x - this.owner.x) + Math.PI / 2;
     }
   }
 
   private _move() {
-    const deltaX = ENEMY_SPEED * Math.cos(this.direction - Math.PI / 2);
-    const deltaY = ENEMY_SPEED * Math.sin(this.direction - Math.PI / 2);
-    const newX = this.owner.x + deltaX;
-    const newY = this.owner.y + deltaY;
-
-    let enemySprite = this.owner;
-    if (enemySprite) {
-      enemySprite.x = newX;
-      enemySprite.y = newY;
-    }
-
-    this.owner.x = newX;
-    this.owner.y = newY;
+    this.owner.x += ENEMY_SPEED * Math.cos(this.direction - Math.PI / 2);
+    this.owner.y += ENEMY_SPEED * Math.sin(this.direction - Math.PI / 2);
   }
 
-  private _getScoreForEnemy(variant: EnemyVariant): number {
-    switch (variant) {
+  private _getScoreForEnemy(): number {
+    switch (this.variant) {
       case EnemyVariant.SMALL:
         return SCORE_FOR_ENEMY_SMALL;
       case EnemyVariant.MEDIUM:
@@ -134,8 +120,6 @@ export class Enemy extends CollidableComponent {
         return SCORE_FOR_ENEMY_LARGE;
       case EnemyVariant.HUGE:
         return SCORE_FOR_ENEMY_HUGE;
-      default:
-        break;
     }
   }
 
@@ -156,7 +140,7 @@ export class Enemy extends CollidableComponent {
     }
   }
 
-  private _calculateNextShotTime(): Date {
+  private _calculateNextShotDate(): Date {
     let idealInterval = 60000 / this.shootingIntensity;
     let actualInterval = this.random.uniform(idealInterval * 0.2, idealInterval * 1.8);
     let date = new Date();
@@ -173,12 +157,8 @@ export class Enemy extends CollidableComponent {
   }
 
   onRemove() {
-    if (!this.scene) {
-      return;
-    }
-    let enemySprite = this.owner;
-    if (enemySprite && enemySprite.parent) {
-      enemySprite.parent.removeChild(enemySprite);
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
     }
   }
 

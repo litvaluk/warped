@@ -1,7 +1,8 @@
-import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteColor, MeteoriteSize, METEORITE_SHATTER_ANGLE_CHANGE, METEORITE_SPEED, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from '../constants';
+import { CollectableOption, CollectableType, COLLECTABLE_SPAWN_PERCENTAGE, GAME_STATS_COMPONENT_NAME, LASER_COLLECTABLE_SPAWN_PERCENTAGE, LIFE_COLLECTABLE_SPAWN_PERCENTAGE, MessageActions, MeteoriteColor, MeteoriteSize, METEORITE_SHATTER_ROTATION_CHANGE as METEORITE_SHATTER_ROTATION_CHANGE, METEORITE_SPEED, PLAYER_COMPONENT_NAME, Point, SCENE_HEIGHT, SCENE_WIDTH, SCORE_FOR_METEOR_LARGE, SCORE_FOR_METEOR_MEDIUM, SCORE_FOR_METEOR_SMALL, SHIELD_COLLECTABLE_SPAWN_PERCENTAGE, Tag } from '../constants';
 import { GameFactory } from '../factories/gameFactory';
 import { CollidableComponent } from './collidable';
 import { GameStatsComponent } from './gameStats';
+import { PlayerComponent } from './player';
 
 export class MeteoriteComponent extends CollidableComponent {
 
@@ -32,7 +33,7 @@ export class MeteoriteComponent extends CollidableComponent {
     let lasers = this.scene.findObjectsByTag(Tag.LASER_PLAYER);
     for (let i = 0; i < lasers.length; i++) {
       if (this.collidesWith(lasers[i])) {
-        this._removeLaserSprite(lasers[i].name);
+        this._removeLaser(lasers[i].name);
         if (this.size !== MeteoriteSize.SMALL) {
           this._shatterMeteorite();
         }
@@ -45,14 +46,15 @@ export class MeteoriteComponent extends CollidableComponent {
         return;
       }
     }
-    let playerSprite = this.scene.findObjectByName('player');
-    if (playerSprite && this.collidesWith(playerSprite)) {
-      let gameStatsComponent = this.scene.stage.findComponentByName('game-stats') as GameStatsComponent;
+
+    let player = this.scene.findObjectByTag(Tag.PLAYER);
+    if (player && this.collidesWith(player)) {
+      let gameStatsComponent = this.scene.findGlobalComponentByName<GameStatsComponent>(GAME_STATS_COMPONENT_NAME);
       if (gameStatsComponent && !gameStatsComponent.immortal) {
-        playerSprite.parent.removeChild(playerSprite);
-        let playerComponent = playerSprite.findComponentByName('player');
+        player.parent.removeChild(player);
+        let playerComponent = player.findComponentByName<PlayerComponent>(PLAYER_COMPONENT_NAME);
         if (playerComponent) {
-          GameFactory.getInstance().spawnExplosion(this.scene, { x: playerSprite.x, y: playerSprite.y }, null, false);
+          GameFactory.getInstance().spawnExplosion(this.scene, { x: player.x, y: player.y }, null, false);
           playerComponent.finish();
         }
         GameFactory.getInstance().spawnPlayer(this.scene);
@@ -71,8 +73,8 @@ export class MeteoriteComponent extends CollidableComponent {
   private _shatterMeteorite() {
     let shatteredLeftPosition: Point = { x: this.owner.x, y: this.owner.y };
     let shatteredRightPosition: Point = { x: this.owner.x, y: this.owner.y };
-    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredLeftPosition, this.owner.rotation - METEORITE_SHATTER_ANGLE_CHANGE]);
-    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredRightPosition, this.owner.rotation + METEORITE_SHATTER_ANGLE_CHANGE]);
+    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredLeftPosition, this.owner.rotation - METEORITE_SHATTER_ROTATION_CHANGE]);
+    GameFactory.getInstance().spawnMeteorite(this.scene, this.color, this._getSmallerMeteoriteSize(this.size), [shatteredRightPosition, this.owner.rotation + METEORITE_SHATTER_ROTATION_CHANGE]);
   }
 
   private _getSmallerMeteoriteSize(size: MeteoriteSize): MeteoriteSize {
@@ -81,8 +83,8 @@ export class MeteoriteComponent extends CollidableComponent {
         return MeteoriteSize.MEDIUM;
       case MeteoriteSize.MEDIUM:
         return MeteoriteSize.SMALL;
-      default:
-        break;
+      case MeteoriteSize.SMALL:
+        return null;
     }
   }
 
@@ -94,8 +96,6 @@ export class MeteoriteComponent extends CollidableComponent {
         return SCORE_FOR_METEOR_MEDIUM;
       case MeteoriteSize.LARGE:
         return SCORE_FOR_METEOR_LARGE;
-      default:
-        break;
     }
   }
 
@@ -107,15 +107,13 @@ export class MeteoriteComponent extends CollidableComponent {
         return 0.45;
       case MeteoriteSize.LARGE:
         return 0.75;
-      default:
-        break;
     }
   }
 
-  private _removeLaserSprite(spriteName: string) {
-    let laserSprite = this.scene.findObjectByName(spriteName);
-    if (laserSprite) {
-      laserSprite.parent.removeChild(laserSprite);
+  private _removeLaser(spriteName: string) {
+    let laser = this.scene.findObjectByName(spriteName);
+    if (laser) {
+      laser.parent.removeChild(laser);
     }
   }
 
@@ -139,16 +137,12 @@ export class MeteoriteComponent extends CollidableComponent {
       }
     }
 
-    return undefined;
+    return null;
   }
 
   onRemove(): void {
-    if (!this.scene) {
-      return;
-    }
-    let meteoriteSprite = this.owner;
-    if (meteoriteSprite && meteoriteSprite.parent) {
-      meteoriteSprite.parent.removeChild(meteoriteSprite);
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
     }
   }
 

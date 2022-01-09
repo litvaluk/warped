@@ -24,12 +24,8 @@ export class LaserComponent extends CollidableComponent {
   }
 
   onRemove(): void {
-    if (!this.scene) {
-      return;
-    }
-    let laserSprite = this.owner;
-    if (laserSprite && laserSprite.parent) {
-      laserSprite.parent.removeChild(laserSprite);
+    if (this.owner && this.owner.parent) {
+      this.owner.parent.removeChild(this.owner);
     }
   }
 

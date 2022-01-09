@@ -40,12 +40,13 @@ export class GameFactory {
   }
 
   spawnPlayer(scene: ECS.Scene) {
+    const name = 'player';
     new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from('player'))
       .anchor(0.5)
       .scale(0.8)
       .localPos(PLAYER_STARTING_X, PLAYER_STARTING_Y)
-      .withName('player')
+      .withName(name)
       .withTag(Tag.PLAYER)
       .withComponent(new PlayerComponent(STARTING_LASER_LEVEL))
       .withParent(scene.stage)
@@ -54,7 +55,6 @@ export class GameFactory {
 
   spawnLaser(scene: ECS.Scene, color: LaserColor, position: Point, rotation: number, tag: Tag, playSound: boolean = true) {
     const name = `laser-${++this._laserCounter}`;
-
     const laser: ECS.Sprite = new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from(`laser-${color}`))
       .anchor(0.5)
@@ -89,7 +89,7 @@ export class GameFactory {
     enemy.addComponent(new Enemy(color, variant, ENEMY_SHOOTING_INTENSITY));
   }
 
-  spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, positionWithRotation: [Point, number]) {
+  spawnMeteorite(scene: ECS.Scene, color: MeteoriteColor, size: MeteoriteSize, positionWithRotation?: [Point, number]) {
     const name = `meteorite-${++this._meteoriteCounter}`;
     const meteorite: ECS.Sprite = new ECS.Builder(scene)
       .asSprite(PIXI.Texture.from(`meteorite-${color}`))
@@ -159,6 +159,7 @@ export class GameFactory {
       .scale(1)
       .localPos(position.x, position.y)
       .withName(name)
+      .withTag(Tag.SHIELD)
       .withParent(scene.stage)
       .build();
   }
@@ -207,7 +208,7 @@ export class GameFactory {
   }
 
   private _createGameStats(scene: ECS.Scene) {
-    scene.stage.addComponent(new GameStatsComponent());
+    scene.addGlobalComponent(new GameStatsComponent());
   }
 
   private _createPlayerLives(scene: ECS.Scene) {
@@ -221,6 +222,7 @@ export class GameFactory {
     const score = new ECS.Builder(scene)
       .asText(`${STARTING_SCORE}`, TEXT_STYLE_SCORE)
       .withName(name)
+      .withTag(Tag.SCORE_TEXT)
       .withParent(scene.stage)
       .build();
 
