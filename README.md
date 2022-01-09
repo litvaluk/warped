@@ -16,9 +16,6 @@
   - at the start, player has 3 lives and shoots with basic laser
   - player can sometimes get another life, laser upgrades or a shield for 10 seconds from destroyed meteorites
   - the enemies spawn more based on elapsed time
-- The main mechanic
-  - easy AI behavior - enemies shooting on the player and avoiding collisions
-  - particle systems - enemies, meteorites exploding, power up pickups
 
 ## How to run
 - the project is powered by ParcelJS, TypeScript, PixiJS and ECSLite libraries
