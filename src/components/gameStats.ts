@@ -3,6 +3,7 @@ import { GAME_STATS_COMPONENT_NAME, MessageActions, PLAYER_COMPONENT_NAME, PLAYE
 import { MenuFactory } from '../factories/menuFactory';
 import { PlayerComponent } from './player';
 import { GameFactory } from '../factories/gameFactory';
+import { uploadHighScore } from '../firestore';
 
 export class GameStatsComponent extends ECS.Component {
 
@@ -42,6 +43,7 @@ export class GameStatsComponent extends ECS.Component {
         this.scene.callWithDelay(0, () => {
           this.scene.clearScene();
           MenuFactory.getInstance().loadGameOverStage(this.scene, this.score);
+          uploadHighScore(this.score);
         });
       }
     } else if (msg.action === MessageActions.ADD_SCORE) {

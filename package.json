@@ -10,8 +10,9 @@
     "compile-test": "tsc --project tsconfig.json --noemit"
   },
   "dependencies": {
+    "pixi.js": "^6.2.1",
     "@pixi/sound": "^4.2.0",
-    "pixi.js": "^6.2.1"
+    "firebase": "^9.6.2"
   },
   "devDependencies": {
     "@types/offscreencanvas": "^2019.6.4",

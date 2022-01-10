@@ -5,3 +5,6 @@
 .cache-loader
 .cache/
 .parcel-cache/
+
+# environment variables
+.env

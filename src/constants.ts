@@ -58,6 +58,8 @@ export const SCORE_TEXT_OFFSET_Y = -20;
 export const PLAYER_COMPONENT_NAME = 'player';
 export const GAME_STATS_COMPONENT_NAME = 'game-stats';
 
+export const UPLOAD_HIGHSCORE_ERROR_TEXT = 'Unable to upload highscore entry to the database!';
+
 export const UI_Z_INDEX = 999;
 
 export const HOW_TO_PLAY_TEXT = `
